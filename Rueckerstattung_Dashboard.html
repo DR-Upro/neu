@@ -85,7 +85,14 @@
 
   <header class="app">
     <h1>💰 Rückerstattung Schüler-Auslagen</h1>
-    <p>Budget pro Schüler: max. CHF 50.00 &nbsp;·&nbsp; Quittungsbetrag wird in bar ausbezahlt</p>
+    <p>
+      Budget pro Schüler: max. CHF
+      <input id="budget" type="number" step="0.05" min="0" value="50"
+             oninput="updBudget(this.value)"
+             style="width:90px; padding:4px 8px; border:none; border-radius:8px;
+                    font-size:15px; font-weight:700; text-align:right; color:#1f4e78;">
+      &nbsp;·&nbsp; Quittungsbetrag wird in bar ausbezahlt
+    </p>
   </header>
 
   <div class="karte anleitung no-print">
@@ -159,6 +166,21 @@
     {v:0.2,  t:"Münz"}, {v:0.1,t:"Münz"}, {v:0.05,t:"Münz"}
   ];
   const KEY = "rueckerstattung_v1";
+  const BUDGET_KEY = "rueckerstattung_budget_v1";
+
+  // Budget pro Schüler (manuell einstellbar, gespeichert)
+  let budget = loadBudget();
+  function loadBudget(){
+    const b = parseFloat(localStorage.getItem(BUDGET_KEY));
+    return (isFinite(b) && b>0) ? b : 50;
+  }
+  function updBudget(val){
+    const b = parseFloat(val);
+    budget = (isFinite(b) && b>0) ? b : 0;
+    localStorage.setItem(BUDGET_KEY, budget);
+    // Alle Warnungen neu bewerten
+    data.forEach((_,i)=> recalcRow(i));
+  }
 
   // Minimale Stückelung, in Rappen gerechnet (keine Rundungsfehler)
   function breakdown(amount){
@@ -213,7 +235,7 @@
       </td>`;
       // Betrag (Eingabe) + stabiles Warn-Feld
       html += `<td>
-        <input class="betrag" type="number" step="0.05" min="0" max="50" value="${row.amount}"
+        <input class="betrag" type="number" step="0.05" min="0" value="${row.amount}"
                oninput="updAmount(${i},this.value)">
         <span class="warn" id="w${i}"></span>
       </td>`;
@@ -240,8 +262,8 @@
     });
     const w = document.getElementById(`w${i}`);
     if(w){
-      const over = amt>50, mismatch = Math.abs(pay-amt)>0.0001;
-      w.textContent = over ? "über Budget 50!" : (mismatch ? "→ ausgezahlt "+fmt(pay) : "");
+      const over = amt>budget, mismatch = Math.abs(pay-amt)>0.0001;
+      w.textContent = over ? "über Budget "+fmt(budget)+"!" : (mismatch ? "→ ausgezahlt "+fmt(pay) : "");
     }
   }
 
@@ -286,6 +308,7 @@
   }
   function escapeHtml(s){ return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 
+  document.getElementById("budget").value = budget;
   render();
 </script>
 </body>
