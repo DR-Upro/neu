@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rückerstattung Schüler-Auslagen</title>
+<style>
+  :root{
+    --blau:#1f4e78; --blau-hell:#2e6db4; --gruen:#548235; --gruen-hell:#e2efda;
+    --gelb:#fff2cc; --grau:#f2f4f7; --rand:#d6dbe3; --text:#222; --muted:#6b7280;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0; font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+    color:var(--text); background:#eef1f6; line-height:1.5;
+  }
+  .wrap{max-width:1000px; margin:0 auto; padding:20px;}
+  header.app{
+    background:linear-gradient(135deg,var(--blau),var(--blau-hell));
+    color:#fff; border-radius:16px; padding:24px 28px; margin-bottom:18px;
+    box-shadow:0 6px 18px rgba(31,78,120,.25);
+  }
+  header.app h1{margin:0 0 6px; font-size:24px;}
+  header.app p{margin:0; opacity:.92; font-size:15px;}
+  .karte{
+    background:#fff; border:1px solid var(--rand); border-radius:14px;
+    padding:20px; margin-bottom:18px; box-shadow:0 2px 6px rgba(0,0,0,.04);
+  }
+  .karte h2{margin:0 0 4px; font-size:18px; color:var(--blau);}
+  .karte .hint{color:var(--muted); font-size:14px; margin:0 0 14px;}
+  .anleitung{background:var(--gruen-hell); border-color:#c7ddb5;}
+  .anleitung ol{margin:8px 0 0; padding-left:22px;}
+  .anleitung li{margin:4px 0;}
+  table{border-collapse:collapse; width:100%; font-size:14px;}
+  th,td{padding:8px 10px; border:1px solid var(--rand); text-align:center;}
+  th{background:var(--blau); color:#fff; font-weight:600; font-size:13px;}
+  th.coin{background:var(--gruen);}
+  td.name{text-align:left;}
+  tbody tr:nth-child(even){background:#fafbfc;}
+  input.name, input.betrag{
+    width:100%; padding:8px 10px; border:2px solid #e2c84a; border-radius:8px;
+    background:var(--gelb); font-size:15px; font-family:inherit;
+  }
+  input.betrag{text-align:right; width:110px;}
+  input.name:focus, input.betrag:focus{outline:none; border-color:var(--blau-hell);}
+  td.calc{color:#333; background:#f7f9fb; font-variant-numeric:tabular-nums;}
+  td.calc.zero{color:#cfd4dc;}
+  .btn{
+    border:none; border-radius:10px; padding:11px 18px; font-size:15px;
+    font-weight:600; cursor:pointer; font-family:inherit; transition:.15s;
+  }
+  .btn:active{transform:translateY(1px);}
+  .btn-add{background:var(--gruen); color:#fff;}
+  .btn-add:hover{background:#4a7430;}
+  .btn-print{background:var(--blau); color:#fff;}
+  .btn-print:hover{background:#163a5c;}
+  .btn-reset{background:#fff; color:#b42318; border:1px solid #f1c4bd;}
+  .btn-reset:hover{background:#fdecea;}
+  .btn-del{background:#fff; color:#b42318; border:1px solid #f1c4bd; padding:6px 10px; border-radius:8px; font-size:13px;}
+  .btn-del:hover{background:#fdecea;}
+  .toolbar{display:flex; gap:10px; flex-wrap:wrap; margin-top:14px;}
+  .warn{color:#b54708; font-size:12px; display:block; margin-top:2px;}
+  .total-grid{display:flex; gap:18px; flex-wrap:wrap; align-items:flex-start;}
+  .order-table{flex:1; min-width:280px;}
+  .order-table td.menge{font-weight:700; font-size:16px;}
+  .summary-box{
+    flex:0 0 240px; background:var(--blau); color:#fff; border-radius:14px; padding:20px; text-align:center;
+  }
+  .summary-box .label{font-size:14px; opacity:.85;}
+  .summary-box .big{font-size:34px; font-weight:800; margin:6px 0;}
+  .summary-box .sub{font-size:14px; opacity:.9;}
+  tfoot td{background:var(--gruen-hell); font-weight:700;}
+  .pill{display:inline-block; background:#e8eefb; color:var(--blau); border-radius:999px; padding:2px 10px; font-size:12px; font-weight:600;}
+  @media print{
+    body{background:#fff;}
+    .no-print{display:none !important;}
+    .karte{box-shadow:none; border-color:#ccc; page-break-inside:avoid;}
+    header.app{box-shadow:none; -webkit-print-color-adjust:exact; print-color-adjust:exact;}
+    th,td{-webkit-print-color-adjust:exact; print-color-adjust:exact;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="app">
+    <h1>💰 Rückerstattung Schüler-Auslagen</h1>
+    <p>Budget pro Schüler: max. CHF 50.00 &nbsp;·&nbsp; Quittungsbetrag wird in bar ausbezahlt</p>
+  </header>
+
+  <div class="karte anleitung no-print">
+    <h2>So einfach geht's</h2>
+    <ol>
+      <li><strong>Name</strong> und <strong>Betrag</strong> der Quittung in die gelben Felder eingeben.</li>
+      <li>Mit <strong>„+ Schüler hinzufügen"</strong> weitere Zeilen anlegen.</li>
+      <li>Unten erscheint automatisch die <strong>Bestellliste fürs Sekretariat</strong> (welche Noten &amp; Münzen total nötig sind).</li>
+      <li>Mit <strong>„🖨 Drucken / als PDF speichern"</strong> kannst du die Liste ausdrucken oder als PDF verschicken.</li>
+    </ol>
+  </div>
+
+  <div class="karte">
+    <h2>Schülerliste <span class="pill" id="countPill">0 Schüler</span></h2>
+    <p class="hint">Gelbe Felder ausfüllen – die Stückelung rechnet sich von selbst.</p>
+    <div style="overflow-x:auto;">
+      <table id="tbl">
+        <thead>
+          <tr>
+            <th style="text-align:left; min-width:140px;">Schüler</th>
+            <th style="min-width:120px;">Betrag CHF</th>
+            <th>20</th><th>10</th><th>5</th>
+            <th class="coin">2</th><th class="coin">1</th><th class="coin">0.50</th>
+            <th class="coin">0.20</th><th class="coin">0.10</th><th class="coin">0.05</th>
+            <th class="no-print"></th>
+          </tr>
+        </thead>
+        <tbody id="rows"></tbody>
+      </table>
+    </div>
+    <div class="toolbar no-print">
+      <button class="btn btn-add" onclick="addRow()">＋ Schüler hinzufügen</button>
+      <button class="btn btn-print" onclick="window.print()">🖨 Drucken / als PDF speichern</button>
+      <button class="btn btn-reset" onclick="resetAll()">🗑 Alles zurücksetzen</button>
+    </div>
+  </div>
+
+  <div class="karte">
+    <h2>📋 Bestellliste fürs Sekretariat</h2>
+    <p class="hint">Diese Mengen muss die Klassenlehrerin beim Direktor bestellen, um alle Auszahlungen zu tätigen.</p>
+    <div class="total-grid">
+      <div class="order-table">
+        <table>
+          <thead>
+            <tr><th style="text-align:left;">Stückelung</th><th>Typ</th><th>Anzahl</th><th>Wert CHF</th></tr>
+          </thead>
+          <tbody id="orderBody"></tbody>
+          <tfoot>
+            <tr><td style="text-align:left;">Total</td><td></td><td id="orderCount">0</td><td id="orderSum">0.00</td></tr>
+          </tfoot>
+        </table>
+      </div>
+      <div class="summary-box">
+        <div class="label">Total auszuzahlen</div>
+        <div class="big" id="grandTotal">0.00</div>
+        <div class="sub">CHF an <span id="payCount">0</span> Schüler</div>
+      </div>
+    </div>
+  </div>
+
+  <p style="text-align:center; color:#9aa1ad; font-size:13px;" class="no-print">
+    Diese Datei läuft komplett offline · Eingaben werden nur auf diesem Gerät gespeichert
+  </p>
+</div>
+
+<script>
+  // Stückelung: Wert (CHF) + Typ
+  const DENOMS = [
+    {v:20,   t:"Note"}, {v:10, t:"Note"}, {v:5,  t:"Note"},
+    {v:2,    t:"Münz"}, {v:1,  t:"Münz"}, {v:0.5,t:"Münz"},
+    {v:0.2,  t:"Münz"}, {v:0.1,t:"Münz"}, {v:0.05,t:"Münz"}
+  ];
+  const KEY = "rueckerstattung_v1";
+
+  // Minimale Stückelung, in Rappen gerechnet (keine Rundungsfehler)
+  function breakdown(amount){
+    let r = Math.round(amount*100);
+    return DENOMS.map(d=>{
+      const unit = Math.round(d.v*100);
+      const n = Math.floor(r/unit);
+      r -= n*unit;
+      return n;
+    });
+  }
+  // Auf 0.05 auszahlbarer Betrag
+  function payable(amount){ return Math.round(amount/0.05)*0.05; }
+
+  let data = load();
+  function load(){
+    try{ const s = JSON.parse(localStorage.getItem(KEY)); if(Array.isArray(s)&&s.length) return s; }catch(e){}
+    return [
+      {name:"Anna", amount:22.00},
+      {name:"Ben", amount:24.45},
+      {name:"Celine", amount:18.30},
+      {name:"Dario", amount:19.65},
+      {name:"Eva", amount:0}
+    ];
+  }
+  function save(){ localStorage.setItem(KEY, JSON.stringify(data)); }
+
+  function addRow(){ data.push({name:"", amount:0}); save(); render();
+    // Fokus auf das neue Namensfeld
+    const inputs = document.querySelectorAll("input.name");
+    if(inputs.length) inputs[inputs.length-1].focus();
+  }
+  function delRow(i){ data.splice(i,1); save(); render(); }
+  function resetAll(){
+    if(confirm("Wirklich alle Einträge löschen und neu beginnen?")){
+      localStorage.removeItem(KEY); data = load(); render();
+    }
+  }
+
+  function fmt(n){ return n.toLocaleString("de-CH",{minimumFractionDigits:2, maximumFractionDigits:2}); }
+
+  function render(){
+    const tbody = document.getElementById("rows");
+    tbody.innerHTML = "";
+    const totals = DENOMS.map(()=>0);
+    let grand = 0, payers = 0;
+
+    data.forEach((row,i)=>{
+      const amt = Number(row.amount)||0;
+      const pay = payable(amt);
+      const bd = breakdown(pay);
+      bd.forEach((n,j)=> totals[j]+=n);
+      grand += pay;
+      if(pay>0) payers++;
+
+      const tr = document.createElement("tr");
+      // Name
+      let html = `<td class="name">
+        <input class="name" type="text" value="${escapeHtml(row.name)}" placeholder="Name"
+               oninput="upd(${i},'name',this.value)">
+      </td>`;
+      // Betrag
+      const over = amt>50, mismatch = Math.abs(pay-amt)>0.0001;
+      html += `<td>
+        <input class="betrag" type="number" step="0.05" min="0" max="50" value="${row.amount}"
+               oninput="upd(${i},'amount',this.value)">
+        ${over?'<span class="warn">über Budget 50!</span>':''}
+        ${(!over&&mismatch)?'<span class="warn">→ ausgezahlt '+fmt(pay)+'</span>':''}
+      </td>`;
+      // Stückelung
+      bd.forEach(n=> html += `<td class="calc ${n?'':'zero'}">${n||'·'}</td>`);
+      // Löschen
+      html += `<td class="no-print"><button class="btn-del" onclick="delRow(${i})">✕</button></td>`;
+      tr.innerHTML = html;
+      tbody.appendChild(tr);
+    });
+
+    // Bestellliste
+    const ob = document.getElementById("orderBody");
+    ob.innerHTML = "";
+    let orderCount = 0, orderSum = 0;
+    DENOMS.forEach((d,j)=>{
+      const n = totals[j];
+      orderCount += n; orderSum += n*d.v;
+      const tr = document.createElement("tr");
+      tr.innerHTML = `<td style="text-align:left;">${fmt(d.v)} CHF</td>
+                      <td>${d.t}</td>
+                      <td class="menge ${n?'':'calc zero'}">${n}</td>
+                      <td style="text-align:right;">${fmt(n*d.v)}</td>`;
+      ob.appendChild(tr);
+    });
+    document.getElementById("orderCount").textContent = orderCount;
+    document.getElementById("orderSum").textContent = fmt(orderSum);
+    document.getElementById("grandTotal").textContent = fmt(grand);
+    document.getElementById("payCount").textContent = payers;
+    document.getElementById("countPill").textContent =
+      data.length + (data.length===1?" Schüler":" Schüler");
+  }
+
+  function upd(i, field, val){
+    if(field==="amount") data[i].amount = val;
+    else data[i][field] = val;
+    save(); render();
+  }
+  function escapeHtml(s){ return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+  render();
+</script>
+</body>
+</html>
