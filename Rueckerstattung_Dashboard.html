@@ -203,40 +203,59 @@
   function render(){
     const tbody = document.getElementById("rows");
     tbody.innerHTML = "";
-    const totals = DENOMS.map(()=>0);
-    let grand = 0, payers = 0;
 
     data.forEach((row,i)=>{
-      const amt = Number(row.amount)||0;
-      const pay = payable(amt);
-      const bd = breakdown(pay);
-      bd.forEach((n,j)=> totals[j]+=n);
-      grand += pay;
-      if(pay>0) payers++;
-
       const tr = document.createElement("tr");
-      // Name
+      // Name (Eingabe – wird beim Tippen NICHT neu aufgebaut)
       let html = `<td class="name">
         <input class="name" type="text" value="${escapeHtml(row.name)}" placeholder="Name"
-               oninput="upd(${i},'name',this.value)">
+               oninput="updName(${i},this.value)">
       </td>`;
-      // Betrag
-      const over = amt>50, mismatch = Math.abs(pay-amt)>0.0001;
+      // Betrag (Eingabe) + stabiles Warn-Feld
       html += `<td>
         <input class="betrag" type="number" step="0.05" min="0" max="50" value="${row.amount}"
-               oninput="upd(${i},'amount',this.value)">
-        ${over?'<span class="warn">über Budget 50!</span>':''}
-        ${(!over&&mismatch)?'<span class="warn">→ ausgezahlt '+fmt(pay)+'</span>':''}
+               oninput="updAmount(${i},this.value)">
+        <span class="warn" id="w${i}"></span>
       </td>`;
-      // Stückelung
-      bd.forEach(n=> html += `<td class="calc ${n?'':'zero'}">${n||'·'}</td>`);
+      // Stückelung – berechnete Zellen mit fester ID
+      DENOMS.forEach((d,j)=> html += `<td class="calc" id="c${i}_${j}">·</td>`);
       // Löschen
       html += `<td class="no-print"><button class="btn-del" onclick="delRow(${i})">✕</button></td>`;
       tr.innerHTML = html;
       tbody.appendChild(tr);
+      recalcRow(i);
     });
 
-    // Bestellliste
+    recalcTotals();
+  }
+
+  // Aktualisiert nur die berechneten Zellen + Warnung einer Zeile (ohne Eingabefelder anzufassen)
+  function recalcRow(i){
+    const amt = Number(data[i].amount)||0;
+    const pay = payable(amt);
+    const bd = breakdown(pay);
+    bd.forEach((n,j)=>{
+      const cell = document.getElementById(`c${i}_${j}`);
+      if(cell){ cell.textContent = n? n : "·"; cell.classList.toggle("zero", !n); }
+    });
+    const w = document.getElementById(`w${i}`);
+    if(w){
+      const over = amt>50, mismatch = Math.abs(pay-amt)>0.0001;
+      w.textContent = over ? "über Budget 50!" : (mismatch ? "→ ausgezahlt "+fmt(pay) : "");
+    }
+  }
+
+  // Aktualisiert Bestellliste + Zusammenfassung aus allen Daten
+  function recalcTotals(){
+    const totals = DENOMS.map(()=>0);
+    let grand = 0, payers = 0;
+    data.forEach(row=>{
+      const pay = payable(Number(row.amount)||0);
+      breakdown(pay).forEach((n,j)=> totals[j]+=n);
+      grand += pay;
+      if(pay>0) payers++;
+    });
+
     const ob = document.getElementById("orderBody");
     ob.innerHTML = "";
     let orderCount = 0, orderSum = 0;
@@ -254,14 +273,16 @@
     document.getElementById("orderSum").textContent = fmt(orderSum);
     document.getElementById("grandTotal").textContent = fmt(grand);
     document.getElementById("payCount").textContent = payers;
-    document.getElementById("countPill").textContent =
-      data.length + (data.length===1?" Schüler":" Schüler");
+    document.getElementById("countPill").textContent = data.length + " Schüler";
   }
 
-  function upd(i, field, val){
-    if(field==="amount") data[i].amount = val;
-    else data[i][field] = val;
-    save(); render();
+  // Name tippen: nur speichern, kein Neuaufbau -> Fokus bleibt erhalten
+  function updName(i, val){ data[i].name = val; save(); }
+
+  // Betrag tippen: speichern + nur berechnete Zellen aktualisieren
+  function updAmount(i, val){
+    data[i].amount = val; save();
+    recalcRow(i); recalcTotals();
   }
   function escapeHtml(s){ return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 
