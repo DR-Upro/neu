@@ -166,6 +166,20 @@ def numbered_step(pdf, n, title, txt, x, y, w):
     return max(pdf.get_y(), y + d) + 3.5
 
 
+def step_line(pdf, n, txt, x, w):
+    """Kompakte nummerierte Zeile (für Prompt-Workflows)."""
+    cy = pdf.get_y()
+    pdf.set_font("DJ", "B", 8.8)
+    pdf.set_text_color(*GOLD)
+    pdf.set_xy(x, cy)
+    pdf.cell(6, 4.8, str(n) + ".")
+    pdf.set_xy(x + 6, cy)
+    pdf.set_font("DJ", "", 9.3)
+    pdf.set_text_color(*TEXT)
+    pdf.multi_cell(w - 6, 4.8, txt, align="L", new_x="LMARGIN", new_y="NEXT")
+    pdf.ln(0.8)
+
+
 def bullet(pdf, txt, x, w, mark=">"):
     cy = pdf.get_y()
     pdf.set_text_color(*GOLD)
@@ -315,18 +329,19 @@ pdf.lead("Claude ist der KI-Agent von Anthropic. Nicht ChatGPT, nicht Gemini –
 pdf.ln(2)
 
 cards = [
-    ("1", "Chat", "Wie ChatGPT – nur besser. Texte, Fragen, Konversation. "
-                   "Dein täglicher KI-Assistent."),
-    ("2", "Cowork", "Dein Agent auf deinem Rechner. Erstellt Dateien, "
-                    "recherchiert, automatisiert. Arbeitet für dich."),
-    ("3", "Claude Code", "Dein eigener Entwickler. Baut Websites, Tools und "
-                         "komplette Anwendungen. Null Code von dir nötig."),
+    ("1", "Chat", "Wie ChatGPT – nur besser",
+     "Texte, Fragen, Konversation. Dein täglicher KI-Assistent."),
+    ("2", "Cowork", "Dein Agent auf deinem Rechner",
+     "Erstellt Dateien, recherchiert, automatisiert. Greift auf deine "
+     "Ordner zu. Arbeitet für dich."),
+    ("3", "Claude Code", "Dein eigener Entwickler",
+     "Baut Websites, Tools und komplette Anwendungen. Null Code von dir nötig."),
 ]
 cy = pdf.get_y()
 gap = 5
 cw = (CW - 2 * gap) / 3
-ch = 47
-for i, (n, t, d) in enumerate(cards):
+ch = 52
+for i, (n, t, sub, d) in enumerate(cards):
     cx = M + i * (cw + gap)
     pdf.card(cx, cy, cw, ch)
     pdf.gold_num(n, cx + 5, cy + 6)
@@ -334,9 +349,13 @@ for i, (n, t, d) in enumerate(cards):
     pdf.set_font("DJ", "B", 11)
     pdf.set_text_color(*GOLD)
     pdf.cell(0, 6, t)
-    pdf.set_xy(cx + 5, cy + 17)
+    pdf.set_xy(cx + 5, cy + 16)
+    pdf.set_font("DJ", "B", 8.4)
+    pdf.set_text_color(*WHITE)
+    pdf.multi_cell(cw - 10, 4.2, sub, align="L")
+    pdf.set_xy(cx + 5, cy + 25)
     pdf.set_font("DJ", "", 8.6)
-    pdf.set_text_color(*TEXT)
+    pdf.set_text_color(*MUTED)
     pdf.multi_cell(cw - 10, 4.3, d, align="L")
 pdf.set_y(cy + ch + 6)
 
@@ -488,14 +507,22 @@ pdf.h2("Datei 1: about-me.md")
 pdf.body("Die wichtigste Datei. Wer du bist, wie du arbeitest, was gute "
          "Ergebnisse für dich bedeuten. Claude liest sie vor jeder Aufgabe – "
          "dein digitales Briefing.")
+pdf.ln(1.5)
+pdf.set_font("DJ", "B", 9.5)
+pdf.set_text_color(*WHITE)
+pdf.cell(0, 5.5, "So erstellst du deine about-me.md:", new_x="LMARGIN", new_y="NEXT")
 pdf.ln(1)
+step_line(pdf, 1, "Öffne eine neue Cowork-Session (Opus 4.6 + Extended Thinking wählen).", M, CW)
+step_line(pdf, 2, "Füge folgenden Prompt ein und lass Claude dich interviewen:", M, CW)
 pdf.set_y(prompt_box(pdf, [
     "Baue meine about-me.md Datei für meinen Cowork-Ordner.",
     "Interviewe mich mit 20 Fragen (eine nach der anderen).",
-    "Fasse meine Antworten in einer kompakten Datei unter",
-    "6.000 Zeichen zusammen und speichere sie als",
-    "about-me.md im Ordner ABOUT ME/.",
+    "Fasse meine Antworten danach in einer kompakten Datei",
+    "unter 6.000 Zeichen zusammen.",
+    "Speichere sie als about-me.md im Ordner ABOUT ME/.",
 ], M, pdf.get_y(), CW, label="Prompt · about-me.md"))
+step_line(pdf, 3, "Beantworte die Fragen per Sprache oder tippe sie ein.", M, CW)
+step_line(pdf, 4, "Claude erstellt die fertige Datei direkt in deinem ABOUT-ME-Ordner.", M, CW)
 
 pdf.ln(1)
 pdf.h2("Datei 2: anti-ai-writing-style.md")
@@ -531,6 +558,11 @@ pdf.h2("Datei 3: my-company.md")
 pdf.body("Deine Ziele, Strategie, Fokus. Was willst du dieses Jahr? Welche "
          "Plattformen? Wozu sagst du „Nein“? Ohne Kontext gibt Claude "
          "generische Antworten – mit Kontext wird es dein Sparring-Partner.")
+pdf.ln(1)
+pdf.set_font("DJ", "B", 9.5)
+pdf.set_text_color(*WHITE)
+pdf.cell(0, 5.5, "Erstellen in der gleichen Session wie about-me:",
+         new_x="LMARGIN", new_y="NEXT")
 pdf.ln(1)
 py = pdf.get_y()
 left_w = CW * 0.5 - 3
@@ -588,7 +620,7 @@ pdf.lead("Credits sind dein Guthaben bei Claude. Lange Konversationen werden "
 pdf.ln(2)
 tricks = [
     ("Konversation neustarten", "Jede Nachricht lässt Claude die ganze Historie neu lesen. „Restart from here“ statt unten weiterschreiben.", "bis zu 95 % in langen Sessions"),
-    ("Neue Session alle 20 Nachrichten", "Zusammenfassung erstellen lassen, kopieren, neu starten, als erste Nachricht einfügen.", "eliminiert Kontext-Aufblähung"),
+    ("Neue Session alle 20 Nachrichten", "Zusammenfassung erstellen lassen, kopieren, neu starten und als erste Nachricht einfügen. Kontext bleibt, Aufblähung ist weg.", "eliminiert Kontext-Aufblähung"),
     ("Aufgaben bündeln", "Drei Prompts = dreifache Kontext-Ladung. Ein Prompt mit drei Aufgaben = einmalige Ladung.", "bis zu 3× weniger Verbrauch"),
     ("Sonnet für einfache Tasks", "Grammatik, Brainstorming, Formatierung → Sonnet. Opus nur für tiefes Denken. Sonnet kostet 60–80 % weniger.", "bis zu 80 % Kostenersparnis"),
     ("ABOUT ME kurz halten", "Über 6.000 Zeichen liest Claude nur Zusammenfassungen. Ziel: alle Dateien zusammen darunter.", "bessere Qualität + weniger Kosten"),
