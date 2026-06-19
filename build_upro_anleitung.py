@@ -3,40 +3,41 @@
 """
 Baut die UPRO-gebrandete Version der Anleitung
 "Claude Cowork & Claude Code" als PDF.
-Quelle: Herr-Tech-Original -> Re-Brand im Upro-Capital-/AI-World-Stil.
+Design: Upro-Capital-/AI-World-Stil – Schwarz + Gold (Luxury).
+Quelle-Inhalt: Herr-Tech-Original -> Re-Brand.
 """
 
 from fpdf import FPDF
 
 # ---------------------------------------------------------------------------
-# UPRO Design-System
+# UPRO Design-System  (Schwarz + Gold)
 # ---------------------------------------------------------------------------
-NAVY      = (11, 31, 58)      # #0B1F3A  Midnight / Capital
-BLAU      = (31, 78, 120)     # #1F4E78  Primaer
-BLAU_HELL = (46, 109, 180)    # #2E6DB4  Akzent blau
-GOLD      = (201, 162, 39)    # #C9A227  Premium-Akzent
-GOLD_HELL = (245, 236, 205)   # #F5ECCD
-TEXT      = (26, 35, 50)      # #1A2332
-MUTED     = (107, 114, 128)   # #6B7280
-LINIE     = (214, 219, 227)   # #D6DBE3
-BG_KARTE  = (255, 255, 255)
-BG_SOFT   = (244, 246, 250)   # #F4F6FA
-BG_NAVY_SOFT = (235, 240, 248)
-WEISS     = (255, 255, 255)
+BG       = (12, 12, 12)       # #0C0C0C  Seiten-Hintergrund
+PANEL    = (26, 26, 26)       # #1A1A1A  Karten
+PANEL2   = (20, 20, 20)       # #141414  Prompt-/Boxen-Fill
+GOLD     = (228, 184, 121)    # #E4B879  Akzent / Headlines
+GOLD_DIM = (122, 98, 54)      # #7A6236  Rahmen / Linien (gedämpft)
+LINE     = (58, 50, 38)       # #3A3226  sehr subtile Linien
+TEXT     = (206, 206, 206)    # #CECECE  Fliesstext
+MUTED    = (140, 140, 140)    # #8C8C8C  Sekundärtext
+WHITE    = (244, 244, 244)    # #F4F4F4  Titel
+DARK     = (12, 12, 12)       # Text auf Gold
 
-TAGLINE   = "Understand   ·   Predict   ·   Research   ·   Own"
-BRAND     = "Upro Capital · AI World"
-SITE      = "hub.upro-capital.com"
-AUTOR     = "Dr. Upro"
-VERSION   = "Version: Juni 2026"
+BRAND_L1 = "Upro Capital"
+BRAND_L2 = ". AI World"
+SITE     = "hub.upro-capital.com"
+AUTOR    = "Dr. Upro"
+VERSION  = "Version: Juni 2026"
 
 PAGE_W, PAGE_H = 210, 297          # A4
-M = 16                              # Seitenrand
-CW = PAGE_W - 2 * M                 # Inhaltsbreite
+M = 16
+CW = PAGE_W - 2 * M
 
 FREG = "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf"
 FBLD = "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf"
 FMON = "/usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf"
+FSER = "/usr/share/fonts/truetype/dejavu/DejaVuSerif.ttf"
+FSEB = "/usr/share/fonts/truetype/dejavu/DejaVuSerif-Bold.ttf"
 
 
 class UPRO(FPDF):
@@ -47,72 +48,83 @@ class UPRO(FPDF):
         self.add_font("DJ", "", FREG)
         self.add_font("DJ", "B", FBLD)
         self.add_font("MO", "", FMON)
-        self.seite = 0
+        self.add_font("SE", "", FSER)
+        self.add_font("SE", "B", FSEB)
 
-    # -- Kopf-/Fusszeile -----------------------------------------------------
+    # -- Voller schwarzer Hintergrund + Kopf-/Fusszeile ---------------------
     def header(self):
-        if self.page_no() == 1:           # Cover hat eigenen Kopf
+        self.set_fill_color(*BG)
+        self.rect(0, 0, PAGE_W, PAGE_H, style="F")
+        if self.page_no() == 1:
             return
-        self.set_xy(M, 10)
-        self.set_font("DJ", "B", 9)
-        self.set_text_color(*BLAU)
-        self.cell(self.get_string_width("Upro Capital") + 0.5, 5, "Upro Capital",
-                  align="L", new_x="RIGHT", new_y="TOP")
+        # Wortmarke oben rechts
+        self.set_font("SE", "B", 9.5)
         self.set_text_color(*GOLD)
-        self.set_font("DJ", "", 9)
-        self.cell(0, 5, " · AI World", align="L")
-        self.set_xy(M, 10)
-        self.set_font("DJ", "", 8)
-        self.set_text_color(*MUTED)
-        self.cell(CW, 5, SITE, align="R")
-        self.set_draw_color(*LINIE)
-        self.set_line_width(0.3)
-        self.line(M, 17, PAGE_W - M, 17)
+        self.set_xy(M, 9)
+        self.cell(CW, 5, BRAND_L1, align="R")
+        self.set_font("DJ", "", 7)
+        self.set_text_color(*GOLD_DIM)
+        self.set_xy(M, 14)
+        self.cell(CW, 4, BRAND_L2, align="R")
 
     def footer(self):
-        if self.page_no() == 1:           # Cover bleibt clean
+        if self.page_no() == 1:
             return
-        self.set_y(-14)
-        self.set_draw_color(*LINIE)
+        self.set_draw_color(*LINE)
         self.set_line_width(0.3)
-        self.line(M, self.get_y(), PAGE_W - M, self.get_y())
-        self.set_y(-11)
+        self.line(M, PAGE_H - 14, PAGE_W - M, PAGE_H - 14)
         self.set_font("DJ", "", 8)
         self.set_text_color(*MUTED)
-        self.cell(CW / 2, 5, BRAND, align="L")
-        self.set_x(M + CW / 2)
+        self.set_xy(M, PAGE_H - 12)
+        self.cell(CW / 2, 5, SITE, align="L")
+        self.set_xy(M + CW / 2, PAGE_H - 12)
         self.cell(CW / 2, 5, f"Seite {self.page_no()}", align="R")
 
     # -- Bausteine -----------------------------------------------------------
-    def rrect(self, x, y, w, h, r, fill, draw=None, lw=0.3):
-        self.set_fill_color(*fill)
-        if draw:
+    def rrect(self, x, y, w, h, r, fill=None, draw=None, lw=0.4):
+        style = ""
+        if fill is not None:
+            self.set_fill_color(*fill)
+            style += "F"
+        if draw is not None:
             self.set_draw_color(*draw)
             self.set_line_width(lw)
-            style = "DF"
-        else:
-            style = "F"
+            style += "D"
         self.rect(x, y, w, h, style=style, round_corners=True, corner_radius=r)
 
+    def card(self, x, y, w, h, r=2.5):
+        """Dunkle Karte mit goldener Oberkante."""
+        self.rrect(x, y, w, h, r, fill=PANEL)
+        self.set_draw_color(*GOLD)
+        self.set_line_width(0.7)
+        self.line(x + r, y + 0.35, x + w - r, y + 0.35)
+
+    def gold_num(self, n, x, y, d=7):
+        self.set_fill_color(*GOLD)
+        self.ellipse(x, y, d, d, style="F")
+        self.set_font("DJ", "B", 9)
+        self.set_text_color(*DARK)
+        self.set_xy(x, y + 0.4)
+        self.cell(d, d, str(n), align="C")
+
     def kicker(self, txt):
-        """Kleine goldene Sektions-Vorzeile."""
         self.set_font("DJ", "B", 8.5)
-        self.set_text_color(*GOLD)
+        self.set_text_color(*GOLD_DIM)
         self.cell(0, 5, txt.upper(), align="L", new_x="LMARGIN", new_y="NEXT")
 
     def h1(self, txt):
-        self.set_font("DJ", "B", 21)
-        self.set_text_color(*NAVY)
-        self.cell(0, 10, txt, align="L", new_x="LMARGIN", new_y="NEXT")
+        self.set_font("DJ", "B", 22)
+        self.set_text_color(*GOLD)
+        self.cell(0, 11, txt, align="L", new_x="LMARGIN", new_y="NEXT")
 
     def lead(self, txt):
         self.set_font("DJ", "", 10.5)
         self.set_text_color(*MUTED)
         self.multi_cell(CW, 5.6, txt, align="L", new_x="LMARGIN", new_y="NEXT")
 
-    def h2(self, txt, color=BLAU):
+    def h2(self, txt):
         self.set_font("DJ", "B", 13.5)
-        self.set_text_color(*color)
+        self.set_text_color(*GOLD)
         self.cell(0, 8, txt, align="L", new_x="LMARGIN", new_y="NEXT")
 
     def body(self, txt, w=CW, gap=5.2, size=10):
@@ -121,51 +133,45 @@ class UPRO(FPDF):
         self.multi_cell(w, gap, txt, align="L", new_x="LMARGIN", new_y="NEXT")
 
 
-def chip_row(pdf, y):
-    """Tagline-Chips fuer das Cover."""
-    parts = ["Understand", "Predict", "Research", "Own"]
-    pdf.set_font("DJ", "B", 9)
-    gap = 4
-    widths = [pdf.get_string_width(p) + 12 for p in parts]
-    total = sum(widths) + gap * (len(parts) - 1)
-    x = (PAGE_W - total) / 2
-    for p, w in zip(parts, widths):
-        pdf.set_fill_color(*NAVY)
-        pdf.rect(x, y, w, 8, style="F", round_corners=True, corner_radius=4)
-        pdf.set_text_color(*GOLD)
-        pdf.set_xy(x, y)
-        pdf.cell(w, 8, p, align="C")
-        x += w + gap
+def diamond(pdf, cx, cy, r, lw=0.5):
+    pdf.set_draw_color(*GOLD_DIM)
+    pdf.set_line_width(lw)
+    pdf.line(cx, cy - r, cx + r, cy)
+    pdf.line(cx + r, cy, cx, cy + r)
+    pdf.line(cx, cy + r, cx - r, cy)
+    pdf.line(cx - r, cy, cx, cy - r)
+
+
+def diamond_cluster(pdf, x, y):
+    """Geometrisches Rauten-Motiv wie auf dem UPRO-Cover."""
+    diamond(pdf, x, y, 13)
+    diamond(pdf, x + 17, y + 5, 9)
+    diamond(pdf, x - 9, y + 16, 7)
+    diamond(pdf, x + 11, y + 21, 5)
 
 
 def numbered_step(pdf, n, title, txt, x, y, w):
-    """Schritt mit goldener Nummernscheibe. Gibt neue y-Position zurueck."""
-    d = 8
-    pdf.set_fill_color(*BLAU)
-    pdf.ellipse(x, y, d, d, style="F")
-    pdf.set_font("DJ", "B", 10)
-    pdf.set_text_color(*WEISS)
-    pdf.set_xy(x, y + 0.4)
-    pdf.cell(d, d, str(n), align="C")
+    d = 7.5
+    pdf.gold_num(n, x, y, d)
     tx = x + d + 4
     tw = w - d - 4
     pdf.set_xy(tx, y - 0.5)
     pdf.set_font("DJ", "B", 10.5)
-    pdf.set_text_color(*NAVY)
+    pdf.set_text_color(*WHITE)
     pdf.multi_cell(tw, 5.2, title, align="L", new_x="LEFT", new_y="NEXT")
     pdf.set_x(tx)
     pdf.set_font("DJ", "", 9.3)
-    pdf.set_text_color(*TEXT)
+    pdf.set_text_color(*MUTED)
     pdf.multi_cell(tw, 4.8, txt, align="L", new_x="LMARGIN", new_y="NEXT")
     return max(pdf.get_y(), y + d) + 3.5
 
 
-def bullet(pdf, txt, x, w, gold=False):
+def bullet(pdf, txt, x, w, mark=">"):
     cy = pdf.get_y()
-    pdf.set_text_color(*(GOLD if gold else BLAU_HELL))
-    pdf.set_font("DJ", "B", 10)
+    pdf.set_text_color(*GOLD)
+    pdf.set_font("DJ", "B", 9.5)
     pdf.set_xy(x, cy)
-    pdf.cell(5, 4.9, "›")
+    pdf.cell(5, 4.9, mark)
     pdf.set_xy(x + 5, cy)
     pdf.set_font("DJ", "", 9.6)
     pdf.set_text_color(*TEXT)
@@ -173,41 +179,10 @@ def bullet(pdf, txt, x, w, gold=False):
     pdf.ln(1.1)
 
 
-def prompt_box(pdf, lines, x, y, w, label="PROMPT"):
-    """Terminal-artige Prompt-Box. Gibt neue y-Position zurueck."""
-    pdf.set_font("MO", "", 8.6)
-    line_h = 4.4
-    inner = w - 10
-    wrapped = []
-    for ln in lines:
-        wrapped += wrap_mono(pdf, ln, inner)
-    h = 9 + len(wrapped) * line_h + 4
-    pdf.rrect(x, y, w, h, 2.5, NAVY)
-    pdf.set_fill_color(*GOLD)
-    pdf.rect(x, y, w, 6.5, style="F", round_corners=True, corner_radius=2.5)
-    pdf.rect(x, y + 3.5, w, 3, style="F")
-    pdf.set_xy(x + 4, y + 0.5)
-    pdf.set_font("DJ", "B", 7.5)
-    pdf.set_text_color(*NAVY)
-    pdf.cell(0, 5.5, label)
-    pdf.set_xy(x, y + 0.5)
-    pdf.set_font("MO", "", 7.5)
-    pdf.cell(w - 4, 5.5, "claude", align="R")
-    yy = y + 8.5
-    pdf.set_font("MO", "", 8.6)
-    pdf.set_text_color(245, 247, 250)
-    for ln in wrapped:
-        pdf.set_xy(x + 5, yy)
-        pdf.cell(inner, line_h, ln)
-        yy += line_h
-    return y + h + 4
-
-
 def wrap_mono(pdf, text, max_w):
-    pdf.set_font("MO", "", 8.6)
-    words = text.split(" ")
+    pdf.set_font("MO", "", 8.4)
     out, cur = [], ""
-    for wd in words:
+    for wd in text.split(" "):
         test = (cur + " " + wd).strip()
         if pdf.get_string_width(test) <= max_w:
             cur = test
@@ -220,19 +195,38 @@ def wrap_mono(pdf, text, max_w):
     return out or [""]
 
 
-def tip(pdf, title, txt, x, y, w):
-    """Goldene Tipp-Box. Gibt neue y zurueck."""
+def prompt_box(pdf, lines, x, y, w, label="PROMPT"):
+    inner = w - 12
+    wrapped = []
+    for ln in lines:
+        wrapped += wrap_mono(pdf, ln, inner)
+    line_h = 4.4
+    h = 8.5 + len(wrapped) * line_h + 4
+    pdf.rrect(x, y, w, h, 2.5, fill=PANEL2, draw=GOLD_DIM, lw=0.4)
+    pdf.set_xy(x + 6, y + 3)
+    pdf.set_font("DJ", "B", 7.8)
+    pdf.set_text_color(*GOLD)
+    pdf.cell(0, 4, label.upper())
+    yy = y + 8.5
+    pdf.set_font("MO", "", 8.4)
+    pdf.set_text_color(*TEXT)
+    for ln in wrapped:
+        pdf.set_xy(x + 6, yy)
+        pdf.cell(inner, line_h, ln)
+        yy += line_h
+    return y + h + 4
+
+
+def tip(pdf, label, txt, x, y, w):
     pdf.set_font("DJ", "", 9.3)
     lines = pdf.multi_cell(w - 12, 4.7, txt, align="L", dry_run=True, output="LINES")
-    h = 10 + len(lines) * 4.7 + 3
-    pdf.rrect(x, y, w, h, 2.5, GOLD_HELL, draw=GOLD, lw=0.4)
-    pdf.set_fill_color(*GOLD)
-    pdf.rect(x, y, 2.4, h, style="F")
+    h = 9.5 + len(lines) * 4.7 + 3
+    pdf.rrect(x, y, w, h, 2.5, fill=PANEL2, draw=GOLD_DIM, lw=0.4)
     pdf.set_xy(x + 6, y + 3)
-    pdf.set_font("DJ", "B", 9.6)
-    pdf.set_text_color(*NAVY)
-    pdf.cell(0, 5, title)
-    pdf.set_xy(x + 6, y + 9)
+    pdf.set_font("DJ", "B", 7.8)
+    pdf.set_text_color(*GOLD)
+    pdf.cell(0, 4, label.upper())
+    pdf.set_xy(x + 6, y + 8.5)
     pdf.set_font("DJ", "", 9.3)
     pdf.set_text_color(*TEXT)
     pdf.multi_cell(w - 12, 4.7, txt, align="L")
@@ -244,50 +238,71 @@ pdf = UPRO()
 
 # ---------- SEITE 1 : COVER ------------------------------------------------
 pdf.add_page()
-pdf.set_fill_color(*NAVY)
+pdf.set_fill_color(*BG)
 pdf.rect(0, 0, PAGE_W, PAGE_H, style="F")
-# Akzentbalken
-pdf.set_fill_color(*GOLD)
-pdf.rect(0, 0, PAGE_W, 3, style="F")
+diamond_cluster(pdf, 168, 30)
+diamond_cluster(pdf, 36, 232)
 
-chip_row(pdf, 30)
-
-pdf.set_xy(M, 92)
-pdf.set_font("DJ", "B", 40)
-pdf.set_text_color(*WEISS)
-pdf.cell(0, 18, "Claude Cowork", align="C", new_x="LMARGIN", new_y="NEXT")
-pdf.set_x(M)
+# Wortmarke
+pdf.set_xy(0, 66)
+pdf.set_font("SE", "B", 27)
+wU = pdf.get_string_width("Upro ")
+wC = pdf.get_string_width("Capital")
+pdf.set_font("DJ", "", 13)
+wAI = pdf.get_string_width(" · AI World")
+pdf.set_font("SE", "B", 27)
+total = wU + wC + wAI
+sx = (PAGE_W - total) / 2
+pdf.set_xy(sx, 66)
 pdf.set_text_color(*GOLD)
-pdf.cell(0, 18, "& Claude Code", align="C", new_x="LMARGIN", new_y="NEXT")
+pdf.cell(wU, 13, "Upro ")
+pdf.set_x(sx + wU)
+pdf.set_text_color(228, 200, 150)
+pdf.cell(wC, 13, "Capital")
+pdf.set_font("DJ", "", 13)
+pdf.set_text_color(*GOLD)
+pdf.set_xy(sx + wU + wC, 69.5)
+pdf.cell(wAI, 9, " · AI World")
+# Tagline THE AI ADVANTAGE (gesperrt)
+pdf.set_font("DJ", "", 8)
+pdf.set_text_color(*GOLD_DIM)
+pdf.set_xy(M, 82)
+pdf.cell(CW, 5, "T H E   A I   A D V A N T A G E", align="C")
 
-pdf.ln(4)
-pdf.set_font("DJ", "", 14)
-pdf.set_text_color(220, 226, 236)
-pdf.cell(0, 9, "Dein neues Betriebssystem. Punkt.", align="C",
-         new_x="LMARGIN", new_y="NEXT")
-
-# Trennlinie
+# Tagline-Zeile
+pdf.set_font("DJ", "", 11)
+pdf.set_text_color(*MUTED)
+pdf.set_xy(M, 100)
+pdf.cell(CW, 6, "Understand   .   Predict   .   Research   .   Own", align="C")
+# Gold-Divider
 pdf.set_draw_color(*GOLD)
-pdf.set_line_width(0.5)
-pdf.line(PAGE_W / 2 - 25, 168, PAGE_W / 2 + 25, 168)
+pdf.set_line_width(0.6)
+pdf.line(PAGE_W / 2 - 28, 113, PAGE_W / 2 + 28, 113)
 
-# Autor / Version Block
-pdf.set_xy(M, 246)
-pdf.set_font("DJ", "B", 11)
-pdf.set_text_color(*WEISS)
-pdf.cell(0, 6, f"Erstellt von {AUTOR}", align="C", new_x="LMARGIN", new_y="NEXT")
+# Titel
+pdf.set_xy(M, 120)
+pdf.set_font("DJ", "B", 36)
+pdf.set_text_color(*WHITE)
+pdf.cell(CW, 16, "Claude Cowork", align="C", new_x="LMARGIN", new_y="NEXT")
 pdf.set_x(M)
-pdf.set_font("DJ", "", 10)
-pdf.set_text_color(180, 190, 205)
-pdf.cell(0, 6, VERSION, align="C", new_x="LMARGIN", new_y="NEXT")
-pdf.ln(2)
+pdf.cell(CW, 16, "& Claude Code", align="C", new_x="LMARGIN", new_y="NEXT")
+pdf.ln(3)
 pdf.set_x(M)
-pdf.set_font("DJ", "B", 11)
+pdf.set_font("DJ", "", 14)
 pdf.set_text_color(*GOLD)
-pdf.cell(0, 6, SITE, align="C", new_x="LMARGIN", new_y="NEXT")
+pdf.cell(CW, 9, "Dein neues Betriebssystem. Punkt.", align="C")
 
-pdf.set_fill_color(*GOLD)
-pdf.rect(0, PAGE_H - 3, PAGE_W, 3, style="F")
+# Fuss
+pdf.set_xy(M, 250)
+pdf.set_font("DJ", "", 10)
+pdf.set_text_color(*MUTED)
+pdf.cell(CW, 6, f"Erstellt von {AUTOR}   |   {VERSION}", align="C",
+         new_x="LMARGIN", new_y="NEXT")
+pdf.ln(1)
+pdf.set_x(M)
+pdf.set_font("DJ", "B", 10)
+pdf.set_text_color(*GOLD)
+pdf.cell(CW, 6, SITE, align="C")
 
 # ---------- SEITE 2 : Was ist Claude --------------------------------------
 pdf.add_page()
@@ -299,7 +314,6 @@ pdf.lead("Claude ist der KI-Agent von Anthropic. Nicht ChatGPT, nicht Gemini –
          "musst du kennen:")
 pdf.ln(2)
 
-# 3 Karten nebeneinander
 cards = [
     ("1", "Chat", "Wie ChatGPT – nur besser. Texte, Fragen, Konversation. "
                    "Dein täglicher KI-Assistent."),
@@ -311,27 +325,22 @@ cards = [
 cy = pdf.get_y()
 gap = 5
 cw = (CW - 2 * gap) / 3
-ch = 46
+ch = 47
 for i, (n, t, d) in enumerate(cards):
     cx = M + i * (cw + gap)
-    pdf.rrect(cx, cy, cw, ch, 3, BG_SOFT, draw=LINIE, lw=0.3)
-    pdf.set_fill_color(*GOLD)
-    pdf.ellipse(cx + 5, cy + 5, 7, 7, style="F")
-    pdf.set_font("DJ", "B", 9)
-    pdf.set_text_color(*NAVY)
-    pdf.set_xy(cx + 5, cy + 5.3)
-    pdf.cell(7, 7, n, align="C")
-    pdf.set_xy(cx + 5, cy + 14)
+    pdf.card(cx, cy, cw, ch)
+    pdf.gold_num(n, cx + 5, cy + 6)
+    pdf.set_xy(cx + 15, cy + 6.6)
     pdf.set_font("DJ", "B", 11)
-    pdf.set_text_color(*BLAU)
+    pdf.set_text_color(*GOLD)
     pdf.cell(0, 6, t)
-    pdf.set_xy(cx + 5, cy + 21)
+    pdf.set_xy(cx + 5, cy + 17)
     pdf.set_font("DJ", "", 8.6)
     pdf.set_text_color(*TEXT)
     pdf.multi_cell(cw - 10, 4.3, d, align="L")
 pdf.set_y(cy + ch + 6)
 
-pdf.set_y(tip(pdf, "Wichtiger Tipp: Einfach fragen!",
+pdf.set_y(tip(pdf, "Tipp · Einfach fragen",
               "Wenn du nicht weiterkommst: Frag Claude direkt. Beschreibe dein "
               "Problem in normaler Sprache – Claude hilft dir sofort. Kein "
               "langes Rätseln, kein Googeln.", M, pdf.get_y(), CW))
@@ -376,44 +385,37 @@ pdf.set_y(y + 1)
 pdf.h2("Welcher Plan ist der richtige?")
 py = pdf.get_y()
 pw = (CW - 6) / 2
-ph = 44
-# Pro
-pdf.rrect(M, py, pw, ph, 3, BG_SOFT, draw=LINIE)
-pdf.set_xy(M + 6, py + 5)
-pdf.set_font("DJ", "B", 12)
-pdf.set_text_color(*BLAU)
-pdf.cell(0, 6, "Pro Plan")
-pdf.set_xy(M + 6, py + 5)
-pdf.set_font("DJ", "B", 11)
-pdf.set_text_color(*GOLD)
-pdf.cell(pw - 12, 6, "$20/Monat", align="R")
-pdf.set_xy(M + 6, py + 14)
-pdf.set_font("DJ", "", 9)
-pdf.set_text_color(*TEXT)
-pdf.multi_cell(pw - 12, 5,
-    "+  Cowork & Claude Code verfügbar\n"
-    "+  Sonnet- + Opus-Modelle\n"
-    "+  Begrenzte Credits täglich\n"
-    "→  Ideal zum Starten")
-# Max
-mx = M + pw + 6
-pdf.rrect(mx, py, pw, ph, 3, BG_NAVY_SOFT, draw=BLAU_HELL, lw=0.4)
-pdf.set_xy(mx + 6, py + 5)
-pdf.set_font("DJ", "B", 12)
-pdf.set_text_color(*NAVY)
-pdf.cell(0, 6, "Max Plan")
-pdf.set_xy(mx + 6, py + 5)
-pdf.set_font("DJ", "B", 11)
-pdf.set_text_color(*GOLD)
-pdf.cell(pw - 12, 6, "$100/Monat", align="R")
-pdf.set_xy(mx + 6, py + 14)
-pdf.set_font("DJ", "", 9)
-pdf.set_text_color(*TEXT)
-pdf.multi_cell(pw - 12, 5,
-    "+  Alles aus Pro\n"
-    "+  Deutlich mehr Credit-Kapazität\n"
-    "+  Prioritäts-Zugang\n"
-    "→  Für intensive tägliche Nutzung")
+ph = 48
+for col, (name, price, items, hot) in enumerate([
+    ("Pro Plan", "$20/Monat",
+     ["Cowork & Claude Code verfügbar", "Sonnet- + Opus-Modelle",
+      "Begrenzte Credits täglich", "Ideal zum Starten"], False),
+    ("Max Plan", "$100/Monat",
+     ["Alles aus Pro", "Deutlich mehr Credit-Kapazität",
+      "Prioritäts-Zugang", "Für intensive tägliche Nutzung"], True),
+]):
+    cx = M + col * (pw + 6)
+    pdf.rrect(cx, py, pw, ph, 3, fill=PANEL if hot else PANEL2,
+              draw=GOLD if hot else GOLD_DIM, lw=0.5 if hot else 0.4)
+    pdf.set_xy(cx, py + 6)
+    pdf.set_font("DJ", "B", 12)
+    pdf.set_text_color(*WHITE)
+    pdf.cell(pw, 6, name, align="C", new_x="LMARGIN", new_y="NEXT")
+    pdf.set_x(cx)
+    pdf.set_font("DJ", "B", 19)
+    pdf.set_text_color(*GOLD)
+    pdf.cell(pw, 11, price, align="C")
+    iy = py + 27
+    for it in items:
+        pdf.set_xy(cx + 8, iy)
+        pdf.set_font("DJ", "B", 9)
+        pdf.set_text_color(*GOLD)
+        pdf.cell(4, 4.6, "+")
+        pdf.set_xy(cx + 13, iy)
+        pdf.set_font("DJ", "", 8.8)
+        pdf.set_text_color(*TEXT)
+        pdf.cell(pw - 18, 4.6, it)
+        iy += 5.2
 
 # ---------- SEITE 4 : Ordnerstruktur --------------------------------------
 pdf.add_page()
@@ -431,18 +433,17 @@ folders = [
 ]
 fy = pdf.get_y()
 for name, desc, star in folders:
-    pdf.rrect(M, fy, CW, 13, 2.5, BG_SOFT, draw=LINIE)
-    pdf.set_fill_color(*(GOLD if star else BLAU))
-    pdf.rect(M, fy, 2.4, 13, style="F")
-    pdf.set_xy(M + 7, fy + 2.4)
+    pdf.rrect(M, fy, CW, 13, 2.5, fill=PANEL)
+    pdf.set_fill_color(*GOLD)
+    pdf.rect(M, fy + 2, 2.4, 9, style="F")
+    pdf.set_xy(M + 8, fy + 2.4)
     pdf.set_font("DJ", "B", 10.5)
-    pdf.set_text_color(*NAVY)
-    label = ("★ " if star else "") + name + "/"
-    pdf.cell(45, 4.5, label)
-    pdf.set_xy(M + 60, fy + 2.4)
+    pdf.set_text_color(*GOLD)
+    pdf.cell(45, 4.5, (("★ " if star else "") + name + "/"))
+    pdf.set_xy(M + 62, fy + 2.4)
     pdf.set_font("DJ", "", 9)
     pdf.set_text_color(*TEXT)
-    pdf.multi_cell(CW - 66, 4.5, desc, align="L")
+    pdf.multi_cell(CW - 70, 4.5, desc, align="L")
     fy += 16
 pdf.set_y(fy)
 
@@ -457,24 +458,21 @@ files = [
 ]
 fy = pdf.get_y()
 fw = (CW - 2 * 5) / 3
-fh = 34
+fh = 35
 for i, (fn, d) in enumerate(files):
     fx = M + i * (fw + 5)
-    pdf.rrect(fx, fy, fw, fh, 3, WEISS, draw=LINIE)
-    pdf.set_fill_color(*BLAU)
-    pdf.rect(fx, fy, fw, 2.4, style="F", round_corners=True, corner_radius=3)
-    pdf.rect(fx, fy + 1, fw, 1.4, style="F")
-    pdf.set_xy(fx + 4, fy + 5)
-    pdf.set_font("MO", "", 8.2)
-    pdf.set_text_color(*BLAU)
+    pdf.card(fx, fy, fw, fh)
+    pdf.set_xy(fx + 4, fy + 6)
+    pdf.set_font("MO", "", 8.0)
+    pdf.set_text_color(*GOLD)
     pdf.multi_cell(fw - 8, 4.2, fn)
-    pdf.set_xy(fx + 4, fy + 14)
+    pdf.set_xy(fx + 4, fy + 15)
     pdf.set_font("DJ", "", 8.4)
     pdf.set_text_color(*TEXT)
     pdf.multi_cell(fw - 8, 4.1, d)
 pdf.set_y(fy + fh + 5)
 
-pdf.set_y(tip(pdf, "Dateien kurz und präzise halten!",
+pdf.set_y(tip(pdf, "Wichtig · Kurz & präzise halten",
               "Claude liest den ABOUT-ME-Ordner vor JEDER Aufgabe. Halte die "
               "Gesamtgröße unter 6.000 Zeichen (ca. 3 Seiten Text). Je kürzer "
               "und präziser, desto besser versteht Claude dich.",
@@ -497,7 +495,7 @@ pdf.set_y(prompt_box(pdf, [
     "Fasse meine Antworten in einer kompakten Datei unter",
     "6.000 Zeichen zusammen und speichere sie als",
     "about-me.md im Ordner ABOUT ME/.",
-], M, pdf.get_y(), CW))
+], M, pdf.get_y(), CW, label="Prompt · about-me.md"))
 
 pdf.ln(1)
 pdf.h2("Datei 2: anti-ai-writing-style.md")
@@ -506,7 +504,7 @@ pdf.body("Du hasst KI-Texte. Wir auch. Diese Datei definiert verbotene Wörter, 
          "wie du – nicht wie ein Roboter.")
 pdf.ln(1)
 pdf.set_font("DJ", "B", 9.5)
-pdf.set_text_color(*NAVY)
+pdf.set_text_color(*WHITE)
 pdf.cell(0, 5.5, "Was rein gehört:", new_x="LMARGIN", new_y="NEXT")
 pdf.ln(1)
 for b in [
@@ -518,7 +516,7 @@ for b in [
     bullet(pdf, b, M, CW)
 
 pdf.ln(1)
-pdf.set_y(tip(pdf, "Tipp: Einfach anfangen",
+pdf.set_y(tip(pdf, "Tipp · Einfach anfangen",
               "Schreibe 10 Wörter auf, die dich in KI-Texten am meisten "
               "stören. Ergänze die Datei schrittweise. Je mehr drinsteht, "
               "desto mehr klingt Claude wie du.", M, pdf.get_y(), CW))
@@ -534,7 +532,6 @@ pdf.body("Deine Ziele, Strategie, Fokus. Was willst du dieses Jahr? Welche "
          "Plattformen? Wozu sagst du „Nein“? Ohne Kontext gibt Claude "
          "generische Antworten – mit Kontext wird es dein Sparring-Partner.")
 pdf.ln(1)
-# Prompt + 4 Mini-Kacheln nebeneinander
 py = pdf.get_y()
 left_w = CW * 0.5 - 3
 prompt_box(pdf, [
@@ -543,8 +540,7 @@ prompt_box(pdf, [
     "meiner Strategie und meinem aktuellen Fokus.",
     "Halte die Datei unter 3.000 Zeichen.",
     "Speichere als my-company.md in ABOUT ME/.",
-], M, py, left_w)
-# Mini-Kacheln rechts
+], M, py, left_w, label="Prompt · my-company.md")
 tiles = [
     ("Ziele", "Top 2–3 Ziele mit konkreten Zahlen."),
     ("Fokus jetzt", "Womit verbringst du gerade die meiste Energie?"),
@@ -558,12 +554,12 @@ for i, (t, d) in enumerate(tiles):
     r, c = divmod(i, 2)
     cx = tx + c * (tw + 4)
     cyy = py + r * (th + 4)
-    pdf.rrect(cx, cyy, tw, th, 2.5, BG_SOFT, draw=LINIE)
-    pdf.set_xy(cx + 3, cyy + 2.5)
+    pdf.card(cx, cyy, tw, th, r=2)
+    pdf.set_xy(cx + 3, cyy + 3)
     pdf.set_font("DJ", "B", 9)
-    pdf.set_text_color(*BLAU)
+    pdf.set_text_color(*GOLD)
     pdf.cell(0, 4, t)
-    pdf.set_xy(cx + 3, cyy + 7)
+    pdf.set_xy(cx + 3, cyy + 7.5)
     pdf.set_font("DJ", "", 7.8)
     pdf.set_text_color(*TEXT)
     pdf.multi_cell(tw - 6, 3.7, d)
@@ -579,7 +575,7 @@ pdf.set_y(prompt_box(pdf, [
     "Lies OUTPUTS/ und TEMPLATES/ NUR auf expliziten Verweis.",
     "Speichere Ergebnisse in OUTPUTS/ (Unterordner).",
     "Bei unklarem Auftrag: Frage nach, bevor du startest.",
-], M, pdf.get_y(), CW))
+], M, pdf.get_y(), CW, label="Global Instructions"))
 
 # ---------- SEITE 7 : Credits sparen --------------------------------------
 pdf.add_page()
@@ -592,7 +588,7 @@ pdf.lead("Credits sind dein Guthaben bei Claude. Lange Konversationen werden "
 pdf.ln(2)
 tricks = [
     ("Konversation neustarten", "Jede Nachricht lässt Claude die ganze Historie neu lesen. „Restart from here“ statt unten weiterschreiben.", "bis zu 95 % in langen Sessions"),
-    ("Neue Session alle 20 Nachrichten", "Zusammenfassung erstellen lassen, kopieren, neu starten, als erste Nachricht einfügen. Kontext bleibt, Ballast weg.", "eliminiert Kontext-Aufblähung"),
+    ("Neue Session alle 20 Nachrichten", "Zusammenfassung erstellen lassen, kopieren, neu starten, als erste Nachricht einfügen.", "eliminiert Kontext-Aufblähung"),
     ("Aufgaben bündeln", "Drei Prompts = dreifache Kontext-Ladung. Ein Prompt mit drei Aufgaben = einmalige Ladung.", "bis zu 3× weniger Verbrauch"),
     ("Sonnet für einfache Tasks", "Grammatik, Brainstorming, Formatierung → Sonnet. Opus nur für tiefes Denken. Sonnet kostet 60–80 % weniger.", "bis zu 80 % Kostenersparnis"),
     ("ABOUT ME kurz halten", "Über 6.000 Zeichen liest Claude nur Zusammenfassungen. Ziel: alle Dateien zusammen darunter.", "bessere Qualität + weniger Kosten"),
@@ -600,35 +596,27 @@ tricks = [
 ]
 gy = pdf.get_y()
 gw = (CW - 6) / 2
-gh = 35
+gh = 36
 for i, (t, d, save) in enumerate(tricks):
     r, c = divmod(i, 2)
     cx = M + c * (gw + 6)
     cyy = gy + r * (gh + 5)
-    pdf.rrect(cx, cyy, gw, gh, 3, WEISS, draw=LINIE)
-    pdf.set_fill_color(*BLAU)
-    pdf.ellipse(cx + 5, cyy + 5, 7, 7, style="F")
-    pdf.set_font("DJ", "B", 9)
-    pdf.set_text_color(*WEISS)
-    pdf.set_xy(cx + 5, cyy + 5.3)
-    pdf.cell(7, 7, str(i + 1), align="C")
-    pdf.set_xy(cx + 15, cyy + 4.5)
+    pdf.card(cx, cyy, gw, gh)
+    pdf.gold_num(i + 1, cx + 5, cyy + 6)
+    pdf.set_xy(cx + 15, cyy + 5)
     pdf.set_font("DJ", "B", 10)
-    pdf.set_text_color(*NAVY)
+    pdf.set_text_color(*GOLD)
     pdf.multi_cell(gw - 20, 4.6, t)
-    pdf.set_xy(cx + 5, cyy + 14)
+    pdf.set_xy(cx + 5, cyy + 15)
     pdf.set_font("DJ", "", 8.4)
     pdf.set_text_color(*TEXT)
     pdf.multi_cell(gw - 10, 4.0, d)
-    # Save-Pill
     pdf.set_font("DJ", "B", 7.6)
-    pw_pill = pdf.get_string_width("→ " + save) + 6
-    pdf.set_fill_color(*GOLD_HELL)
-    pdf.rect(cx + 5, cyy + gh - 8, min(pw_pill, gw - 10), 5.5, style="F",
-             round_corners=True, corner_radius=2.5)
+    pw_pill = min(pdf.get_string_width("→ " + save) + 6, gw - 10)
+    pdf.rrect(cx + 5, cyy + gh - 8, pw_pill, 5.5, 2.2, fill=PANEL2, draw=GOLD_DIM, lw=0.3)
     pdf.set_xy(cx + 5, cyy + gh - 8)
-    pdf.set_text_color(*NAVY)
-    pdf.cell(min(pw_pill, gw - 10), 5.5, "→ " + save, align="C")
+    pdf.set_text_color(*GOLD)
+    pdf.cell(pw_pill, 5.5, "→ " + save, align="C")
 
 # ---------- SEITE 8 : Claude Code -----------------------------------------
 pdf.add_page()
@@ -659,12 +647,6 @@ code_steps = [
     ("Testen & verfeinern", "Direkt im Browser testen. Passt etwas nicht: in normaler Sprache Feedback geben."),
 ]
 half = CW / 2 - 3
-for i, (t, d) in enumerate(code_steps):
-    r, c = divmod(i, 2)
-    if c == 0 and r > 0:
-        pass
-# zweispaltig manuell
-ys = [y, y, y]
 col_y = [y, y]
 for i, (t, d) in enumerate(code_steps):
     c = i % 2
@@ -677,7 +659,7 @@ pdf.set_y(prompt_box(pdf, [
     "Video-Link einfügen kann und das das Video 1:1 nachbaut –",
     "mit Transkript, Screenshots, Szenen-Vorschlägen und",
     "fertiger Video-Generierung.",
-], M, pdf.get_y(), CW, label="BEISPIEL-PROMPT"))
+], M, pdf.get_y(), CW, label="Beispiel-Prompt"))
 pdf.set_y(tip(pdf, "Das Ergebnis",
               "Vollständige Webanwendung – kein Coding, kein Entwickler, null "
               "Agentur-Kosten. Früher: 8 Wochen + 5-stelliger Betrag. Heute: "
@@ -717,50 +699,44 @@ blocks = [
 by = pdf.get_y()
 for tag, title, items in blocks:
     h = 11 + len(items) * 4.8 + 3
-    pdf.rrect(M, by, CW, h, 3, BG_SOFT, draw=LINIE)
+    pdf.rrect(M, by, CW, h, 2.5, fill=PANEL)
     pdf.set_fill_color(*GOLD)
-    pdf.rect(M, by, 2.4, h, style="F")
-    # Tag-Pill
+    pdf.rect(M, by + 2, 2.4, h - 4, style="F")
     pdf.set_font("DJ", "B", 8.5)
     pw_pill = pdf.get_string_width(tag) + 8
-    pdf.set_fill_color(*NAVY)
-    pdf.rect(M + 6, by + 3, pw_pill, 5.6, style="F", round_corners=True, corner_radius=2.8)
-    pdf.set_xy(M + 6, by + 3)
+    pdf.rrect(M + 7, by + 3, pw_pill, 5.6, 2.5, fill=PANEL2, draw=GOLD_DIM, lw=0.3)
+    pdf.set_xy(M + 7, by + 3)
     pdf.set_text_color(*GOLD)
     pdf.cell(pw_pill, 5.6, tag, align="C")
-    pdf.set_xy(M + 12 + pw_pill, by + 2.6)
+    pdf.set_xy(M + 13 + pw_pill, by + 2.6)
     pdf.set_font("DJ", "B", 10.5)
-    pdf.set_text_color(*NAVY)
+    pdf.set_text_color(*WHITE)
     pdf.cell(0, 6, title)
     iy = by + 11
     for it in items:
-        pdf.set_xy(M + 8, iy)
+        pdf.set_xy(M + 9, iy)
         pdf.set_font("DJ", "B", 9)
         pdf.set_text_color(*GOLD)
-        pdf.cell(4, 4.6, "›")
-        pdf.set_xy(M + 12, iy)
+        pdf.cell(4, 4.6, ">")
+        pdf.set_xy(M + 13, iy)
         pdf.set_font("DJ", "", 8.8)
         pdf.set_text_color(*TEXT)
-        pdf.multi_cell(CW - 18, 4.6, it)
+        pdf.multi_cell(CW - 19, 4.6, it)
         iy = pdf.get_y()
     by += h + 4
 
-# Abschluss-Banner
 pdf.ln(1)
 banner_y = pdf.get_y()
 bh = 26
-pdf.rrect(M, banner_y, CW, bh, 4, NAVY)
-pdf.set_fill_color(*GOLD)
-pdf.rect(M, banner_y, CW, 2.2, style="F", round_corners=True, corner_radius=4)
-pdf.rect(M, banner_y + 1, CW, 1.2, style="F")
+pdf.rrect(M, banner_y, CW, bh, 3, fill=PANEL, draw=GOLD, lw=0.6)
 pdf.set_xy(M, banner_y + 6)
 pdf.set_font("DJ", "B", 15)
-pdf.set_text_color(*WEISS)
+pdf.set_text_color(*GOLD)
 pdf.cell(CW, 8, "Du bist bereit.", align="C", new_x="LMARGIN", new_y="NEXT")
 pdf.set_x(M)
 pdf.set_font("DJ", "", 11)
-pdf.set_text_color(*GOLD)
-pdf.cell(CW, 6, "Dein neues Betriebssystem wartet.  ·  " + SITE, align="C")
+pdf.set_text_color(*TEXT)
+pdf.cell(CW, 6, "Dein neues Betriebssystem wartet.   ·   " + SITE, align="C")
 
 pdf.output("/home/user/neu/Claude_Cowork_Code_Anleitung_UPRO.pdf")
 print("OK -> Claude_Cowork_Code_Anleitung_UPRO.pdf")
