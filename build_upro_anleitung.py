@@ -38,6 +38,7 @@ FBLD = "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf"
 FMON = "/usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf"
 FSER = "/usr/share/fonts/truetype/dejavu/DejaVuSerif.ttf"
 FSEB = "/usr/share/fonts/truetype/dejavu/DejaVuSerif-Bold.ttf"
+ASSET = "/home/user/neu/assets/"
 
 
 class UPRO(FPDF):
@@ -164,6 +165,24 @@ def numbered_step(pdf, n, title, txt, x, y, w):
     pdf.set_text_color(*MUTED)
     pdf.multi_cell(tw, 4.8, txt, align="L", new_x="LMARGIN", new_y="NEXT")
     return max(pdf.get_y(), y + d) + 3.5
+
+
+def figure(pdf, img, ratio, img_w, caption, top=None):
+    """Gerahmter Screenshot mit Bildunterschrift. Gibt neue y zurück."""
+    if top is None:
+        top = pdf.get_y()
+    pad = 3
+    h = img_w * ratio
+    fw = img_w + 2 * pad
+    fh = h + 2 * pad
+    fx = M + (CW - fw) / 2
+    pdf.rrect(fx, top, fw, fh, 2.5, fill=PANEL2, draw=GOLD_DIM, lw=0.4)
+    pdf.image(img, fx + pad, top + pad, img_w, h)
+    pdf.set_xy(M, top + fh + 2.5)
+    pdf.set_font("DJ", "", 8.2)
+    pdf.set_text_color(*MUTED)
+    pdf.cell(CW, 4, caption, align="C")
+    return top + fh + 9
 
 
 def step_line(pdf, n, txt, x, w):
@@ -436,6 +455,10 @@ for col, (name, price, items, hot) in enumerate([
         pdf.cell(pw - 18, 4.6, it)
         iy += 5.2
 
+pdf.set_y(py + ph + 8)
+figure(pdf, ASSET + "shot_cowork.png", 0.65, 88,
+       "So sieht die Ordner-Auswahl in Claude Cowork aus")
+
 # ---------- SEITE 4 : Ordnerstruktur --------------------------------------
 pdf.add_page()
 pdf.set_y(24)
@@ -496,6 +519,9 @@ pdf.set_y(tip(pdf, "Wichtig · Kurz & präzise halten",
               "Gesamtgröße unter 6.000 Zeichen (ca. 3 Seiten Text). Je kürzer "
               "und präziser, desto besser versteht Claude dich.",
               M, pdf.get_y(), CW))
+pdf.ln(1)
+figure(pdf, ASSET + "shot_finder.png", 0.4667, 120,
+       "Dein Claude Cowork Ordner im Finder mit den drei Unterordnern")
 
 # ---------- SEITE 5 : Kern-Dateien Teil 1 ---------------------------------
 pdf.add_page()
@@ -608,6 +634,9 @@ pdf.set_y(prompt_box(pdf, [
     "Speichere Ergebnisse in OUTPUTS/ (Unterordner).",
     "Bei unklarem Auftrag: Frage nach, bevor du startest.",
 ], M, pdf.get_y(), CW, label="Global Instructions"))
+pdf.ln(1)
+figure(pdf, ASSET + "shot_p6.png", 0.5826, 100,
+       "Einstellungen → Cowork → Global Instructions")
 
 # ---------- SEITE 7 : Credits sparen --------------------------------------
 pdf.add_page()
