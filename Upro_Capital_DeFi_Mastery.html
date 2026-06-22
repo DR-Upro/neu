@@ -1,0 +1,1179 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Upro Capital · DeFi Mastery</title>
+<style>
+  :root{
+    --bg:#0a0908;
+    --bg-2:#0e0c0a;
+    --panel:#15120e;
+    --panel-2:#1b1711;
+    --card:#16130f;
+    --card-2:#1c1812;
+    --border:#2a241b;
+    --border-2:#3a3122;
+    --text:#f3ede2;
+    --muted:#a89b86;
+    --muted-2:#7a6f5d;
+    --primary:#f0b429;
+    --primary-2:#f6c84a;
+    --cyan:#f5c542;
+    --green:#34d399;
+    --green-soft:#0e6b50;
+    --amber:#f59e0b;
+    --red:#ef4444;
+    --pink:#ec4899;
+    --grad:linear-gradient(135deg,#f5c542 0%,#e0901a 100%);
+    --grad-2:linear-gradient(135deg,#f0b429 0%,#b45309 100%);
+    --grad-green:linear-gradient(135deg,#34d399 0%,#f5c542 100%);
+    --shadow:0 20px 50px rgba(0,0,0,.6);
+    --ring:0 0 0 1px var(--border);
+    --r:18px;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    font-family:'Inter',-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+    background:
+      radial-gradient(900px 600px at 50% 42%, rgba(240,160,30,.16), transparent 62%),
+      radial-gradient(1100px 500px at 85% 0%, rgba(245,180,40,.10), transparent 60%),
+      var(--bg);
+    background-attachment:fixed;
+    color:var(--text);
+    line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+  }
+  a{color:var(--primary-2);text-decoration:none;}
+  a:hover{text-decoration:underline;}
+
+  /* ---------- LAYOUT ---------- */
+  .app{display:flex;min-height:100vh;}
+  .sidebar{
+    width:280px;flex-shrink:0;position:sticky;top:0;height:100vh;
+    background:linear-gradient(180deg,rgba(17,24,39,.95),rgba(10,14,26,.95));
+    border-right:1px solid var(--border);
+    backdrop-filter:blur(12px);
+    display:flex;flex-direction:column;
+    z-index:50;
+  }
+  .brand{padding:22px 22px 16px;display:flex;align-items:center;gap:12px;border-bottom:1px solid var(--border);}
+  .brand .logo{
+    width:44px;height:44px;border-radius:13px;flex-shrink:0;
+    background:var(--grad);display:flex;align-items:center;justify-content:center;
+    font-weight:800;font-size:20px;color:#1a1408;box-shadow:0 8px 22px rgba(240,160,30,.45);
+  }
+  .brand .bt{font-weight:800;font-size:15px;letter-spacing:.2px;line-height:1.1;}
+  .brand .bs{font-size:11.5px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;}
+
+  .nav{padding:14px 12px;overflow-y:auto;flex:1;}
+  .nav::-webkit-scrollbar{width:8px;}
+  .nav::-webkit-scrollbar-thumb{background:var(--border-2);border-radius:8px;}
+  .nav-group{font-size:10.5px;text-transform:uppercase;letter-spacing:1.6px;color:var(--muted-2);
+    padding:14px 14px 7px;font-weight:700;}
+  .nav a{
+    display:flex;align-items:center;gap:12px;padding:10px 13px;border-radius:12px;
+    color:var(--muted);font-size:14px;font-weight:500;cursor:pointer;
+    transition:.16s;margin:2px 0;border:1px solid transparent;
+  }
+  .nav a .ic{width:20px;text-align:center;font-size:16px;flex-shrink:0;}
+  .nav a:hover{background:var(--panel-2);color:var(--text);text-decoration:none;}
+  .nav a.active{
+    background:linear-gradient(135deg,rgba(240,160,30,.22),rgba(245,180,40,.10));
+    color:#fff;border-color:var(--border-2);
+    box-shadow:inset 0 0 0 1px rgba(246,200,74,.25);
+  }
+  .nav a.active .ic{filter:drop-shadow(0 0 6px rgba(246,200,74,.8));}
+  .sidebar-foot{padding:14px 18px;border-top:1px solid var(--border);font-size:11px;color:var(--muted-2);}
+
+  .main{flex:1;min-width:0;}
+  .topbar{
+    position:sticky;top:0;z-index:40;
+    display:flex;align-items:center;gap:16px;
+    padding:14px 30px;
+    background:rgba(10,14,26,.72);backdrop-filter:blur(14px);
+    border-bottom:1px solid var(--border);
+  }
+  .topbar .menu-btn{display:none;background:var(--card);border:1px solid var(--border);color:var(--text);
+    width:40px;height:40px;border-radius:11px;font-size:18px;cursor:pointer;}
+  .crumb{font-size:13px;color:var(--muted);}
+  .crumb b{color:var(--text);}
+  .topbar .spacer{flex:1;}
+  .pill{
+    display:inline-flex;align-items:center;gap:7px;padding:7px 14px;border-radius:999px;
+    background:var(--card);border:1px solid var(--border);font-size:12.5px;color:var(--muted);font-weight:600;
+  }
+  .dot{width:8px;height:8px;border-radius:50%;background:var(--green);box-shadow:0 0 10px var(--green);}
+
+  .content{padding:32px 30px 80px;max-width:1140px;margin:0 auto;}
+  section.view{display:none;animation:fade .35s ease;}
+  section.view.active{display:block;}
+  @keyframes fade{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:none;}}
+
+  /* ---------- TYPO ---------- */
+  h1.page{font-size:30px;font-weight:800;margin:0 0 6px;letter-spacing:-.5px;}
+  .page-sub{color:var(--muted);font-size:15px;margin:0 0 26px;max-width:760px;}
+  h2.sec{font-size:21px;font-weight:750;margin:38px 0 4px;letter-spacing:-.3px;display:flex;align-items:center;gap:10px;}
+  h2.sec .num{font-size:12px;background:var(--grad);color:#1a1408;width:26px;height:26px;border-radius:8px;
+    display:inline-flex;align-items:center;justify-content:center;font-weight:800;}
+  h3{font-size:16.5px;font-weight:700;margin:22px 0 8px;}
+  p{margin:10px 0;color:#cdd6ea;}
+  .lead{font-size:16px;color:#dbe3f3;}
+  ul,ol{color:#cdd6ea;padding-left:22px;}
+  li{margin:6px 0;}
+  .muted{color:var(--muted);}
+  .hl{color:var(--cyan);font-weight:600;}
+  .hl-v{color:var(--primary-2);font-weight:600;}
+  .hl-g{color:var(--green);font-weight:600;}
+
+  /* ---------- CARDS ---------- */
+  .card{
+    background:linear-gradient(180deg,var(--card),var(--card-2));
+    border:1px solid var(--border);border-radius:var(--r);padding:22px 24px;margin:16px 0;
+    box-shadow:0 8px 28px rgba(0,0,0,.22);
+  }
+  .grid{display:grid;gap:16px;}
+  .g2{grid-template-columns:repeat(2,1fr);}
+  .g3{grid-template-columns:repeat(3,1fr);}
+  .g4{grid-template-columns:repeat(4,1fr);}
+  @media(max-width:900px){.g2,.g3,.g4{grid-template-columns:1fr;}}
+
+  /* hero */
+  .hero{
+    position:relative;overflow:hidden;border-radius:24px;padding:38px 36px;margin-bottom:8px;
+    background:
+      radial-gradient(700px 340px at 75% -30%, rgba(245,180,40,.30), transparent 62%),
+      linear-gradient(135deg,#211a10,#13100b);
+    border:1px solid var(--border-2);
+  }
+  .hero::after{content:"";position:absolute;right:-60px;top:-60px;width:280px;height:280px;border-radius:50%;
+    background:var(--grad);filter:blur(60px);opacity:.32;}
+  .hero h1{font-size:34px;font-weight:850;margin:0 0 10px;letter-spacing:-.6px;position:relative;}
+  .hero p{font-size:16px;color:#dbe3f3;max-width:640px;position:relative;margin:0;}
+  .badge{display:inline-block;padding:6px 13px;border-radius:999px;font-size:12px;font-weight:700;
+    background:rgba(240,160,30,.18);border:1px solid rgba(246,200,74,.35);color:var(--primary-2);
+    letter-spacing:.5px;margin-bottom:16px;}
+
+  /* stat cards */
+  .stat{background:linear-gradient(180deg,var(--card),var(--card-2));border:1px solid var(--border);
+    border-radius:16px;padding:18px 20px;}
+  .stat .k{font-size:12px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.7px;}
+  .stat .v{font-size:28px;font-weight:800;margin-top:6px;letter-spacing:-.5px;}
+  .stat .v.green{color:var(--green);} .stat .v.cyan{color:var(--cyan);} .stat .v.violet{color:var(--primary-2);}
+  .stat .s{font-size:12.5px;color:var(--muted);margin-top:2px;}
+
+  /* module tiles */
+  .tiles{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:8px;}
+  @media(max-width:900px){.tiles{grid-template-columns:1fr;}}
+  .tile{
+    background:linear-gradient(180deg,var(--card),var(--card-2));border:1px solid var(--border);
+    border-radius:18px;padding:22px;cursor:pointer;transition:.18s;position:relative;overflow:hidden;
+  }
+  .tile:hover{transform:translateY(-4px);border-color:var(--border-2);box-shadow:var(--shadow);}
+  .tile .ti{width:46px;height:46px;border-radius:13px;display:flex;align-items:center;justify-content:center;
+    font-size:23px;margin-bottom:14px;background:rgba(240,160,30,.14);border:1px solid var(--border-2);}
+  .tile h4{margin:0 0 6px;font-size:16.5px;font-weight:750;}
+  .tile p{margin:0;font-size:13.5px;color:var(--muted);}
+  .tile .tag{position:absolute;top:16px;right:16px;font-size:10.5px;font-weight:700;letter-spacing:.6px;
+    text-transform:uppercase;color:var(--muted-2);background:var(--panel);padding:4px 9px;border-radius:7px;border:1px solid var(--border);}
+  .tile .lvl{margin-top:14px;display:inline-block;font-size:11.5px;font-weight:700;padding:4px 10px;border-radius:999px;}
+  .lvl.l1{background:rgba(16,185,129,.14);color:#34d399;border:1px solid rgba(16,185,129,.3);}
+  .lvl.l2{background:rgba(245,158,11,.14);color:#fbbf24;border:1px solid rgba(245,158,11,.3);}
+  .lvl.l3{background:rgba(239,68,68,.14);color:#f87171;border:1px solid rgba(239,68,68,.3);}
+
+  /* callout boxes */
+  .box{border-radius:14px;padding:16px 18px;margin:16px 0;border:1px solid var(--border);
+    display:flex;gap:13px;align-items:flex-start;}
+  .box .bi{font-size:20px;line-height:1.3;flex-shrink:0;}
+  .box .bt{font-weight:750;margin-bottom:2px;}
+  .box p{margin:4px 0 0;font-size:14px;}
+  .box.info{background:rgba(245,180,40,.07);border-color:rgba(245,180,40,.28);}
+  .box.tip{background:rgba(16,185,129,.07);border-color:rgba(16,185,129,.30);}
+  .box.warn{background:rgba(245,158,11,.08);border-color:rgba(245,158,11,.32);}
+  .box.danger{background:rgba(239,68,68,.08);border-color:rgba(239,68,68,.34);}
+  .box.def{background:rgba(240,160,30,.08);border-color:rgba(246,200,74,.30);}
+
+  /* steps */
+  .steps{counter-reset:s;margin:18px 0;padding:0;list-style:none;}
+  .steps>li{
+    position:relative;padding:4px 0 22px 56px;margin:0;
+  }
+  .steps>li::before{
+    counter-increment:s;content:counter(s);
+    position:absolute;left:0;top:0;width:38px;height:38px;border-radius:11px;
+    background:var(--grad);color:#1a1408;font-weight:800;font-size:16px;
+    display:flex;align-items:center;justify-content:center;box-shadow:0 6px 16px rgba(240,160,30,.4);
+  }
+  .steps>li::after{content:"";position:absolute;left:18px;top:44px;bottom:0;width:2px;background:var(--border-2);}
+  .steps>li:last-child::after{display:none;}
+  .steps>li .st{font-weight:700;font-size:15.5px;margin-bottom:2px;color:#fff;}
+  .steps>li .sd{font-size:14px;color:var(--muted);}
+
+  /* mock screenshot */
+  .shot{border-radius:14px;overflow:hidden;border:1px solid var(--border-2);margin:14px 0;
+    background:#0c111d;box-shadow:0 14px 34px rgba(0,0,0,.4);}
+  .shot .bar{display:flex;align-items:center;gap:7px;padding:10px 14px;background:#10172a;border-bottom:1px solid var(--border);}
+  .shot .bar i{width:11px;height:11px;border-radius:50%;display:inline-block;}
+  .shot .bar i.r{background:#ff5f57;} .shot .bar i.y{background:#febc2e;} .shot .bar i.g{background:#28c840;}
+  .shot .url{margin-left:10px;flex:1;background:#0a1020;border:1px solid var(--border);border-radius:8px;
+    padding:5px 12px;font-size:12px;color:var(--muted);font-family:ui-monospace,monospace;}
+  .shot .body{padding:20px;}
+  .cap{font-size:12.5px;color:var(--muted-2);text-align:center;margin:-4px 0 18px;font-style:italic;}
+
+  /* mock UI bits */
+  .mui-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;}
+  .mui-logo{display:flex;align-items:center;gap:9px;font-weight:800;font-size:15px;}
+  .mui-logo .d{width:26px;height:26px;border-radius:8px;background:var(--grad);}
+  .mui-field{background:#0a1020;border:1px solid var(--border-2);border-radius:10px;padding:11px 14px;margin:8px 0;
+    color:var(--muted);font-size:13.5px;display:flex;justify-content:space-between;align-items:center;}
+  .mui-field.focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(240,160,30,.18);color:var(--text);}
+  .mui-label{font-size:12px;color:var(--muted-2);margin:12px 0 3px;font-weight:600;}
+  .mui-btn{background:var(--grad);color:#1a1408;border:none;border-radius:10px;padding:12px;text-align:center;
+    font-weight:800;font-size:14px;margin-top:12px;}
+  .mui-btn.ghost{background:transparent;border:1px solid var(--border-2);color:var(--text);}
+  .mui-row{display:flex;justify-content:space-between;align-items:center;padding:13px 0;border-bottom:1px solid var(--border);}
+  .mui-row:last-child{border-bottom:none;}
+  .mui-coin{display:flex;align-items:center;gap:11px;}
+  .mui-ic{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:14px;}
+  .ic-eth{background:#454a75;color:#fff;} .ic-btc{background:#f7931a;color:#fff;}
+  .ic-usdc{background:#2775ca;color:#fff;} .ic-usdt{background:#26a17b;color:#fff;}
+  .ic-sol{background:linear-gradient(135deg,#9945ff,#14f195);color:#fff;} .ic-dai{background:#f4b731;color:#222;}
+  .mui-apy{font-weight:800;color:var(--green);font-size:15px;}
+  .mui-tabs{display:flex;gap:8px;margin-bottom:14px;}
+  .mui-tab{padding:7px 14px;border-radius:9px;font-size:13px;font-weight:600;background:#0a1020;border:1px solid var(--border);color:var(--muted);}
+  .mui-tab.on{background:rgba(240,160,30,.2);color:#fff;border-color:var(--border-2);}
+  .mui-big{font-size:30px;font-weight:850;letter-spacing:-.5px;}
+  .mui-pill{font-size:11px;padding:3px 9px;border-radius:7px;background:rgba(16,185,129,.16);color:#34d399;font-weight:700;}
+
+  /* tables */
+  table.t{width:100%;border-collapse:collapse;font-size:14px;margin:14px 0;}
+  table.t th,table.t td{padding:11px 14px;text-align:left;border-bottom:1px solid var(--border);}
+  table.t th{background:var(--panel);color:var(--muted);font-size:12px;text-transform:uppercase;letter-spacing:.6px;font-weight:700;}
+  table.t tr:hover td{background:rgba(240,160,30,.05);}
+  table.t td b{color:#fff;}
+  .tag-ok{color:#34d399;font-weight:700;} .tag-mid{color:#fbbf24;font-weight:700;} .tag-bad{color:#f87171;font-weight:700;}
+
+  /* progress */
+  .prog{height:9px;border-radius:999px;background:var(--panel);overflow:hidden;margin:8px 0;}
+  .prog>div{height:100%;background:var(--grad);border-radius:999px;transition:width .5s;}
+
+  /* checklist (interactive) */
+  .check{list-style:none;padding:0;margin:14px 0;}
+  .check li{display:flex;gap:12px;align-items:flex-start;padding:12px 14px;border:1px solid var(--border);
+    border-radius:12px;margin:8px 0;cursor:pointer;transition:.15s;background:var(--card);}
+  .check li:hover{border-color:var(--border-2);}
+  .check li .cb{width:22px;height:22px;border-radius:7px;border:2px solid var(--border-2);flex-shrink:0;margin-top:1px;
+    display:flex;align-items:center;justify-content:center;font-size:13px;color:transparent;transition:.15s;}
+  .check li.done .cb{background:var(--green);border-color:var(--green);color:#fff;}
+  .check li.done .ct{color:var(--muted);text-decoration:line-through;}
+  .check li .ct{font-size:14.5px;}
+
+  /* glossary */
+  .gl{border-bottom:1px solid var(--border);padding:16px 0;}
+  .gl dt{font-weight:750;font-size:15.5px;color:#fff;}
+  .gl dd{margin:5px 0 0;color:var(--muted);font-size:14px;}
+
+  /* calculator */
+  .calc-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px;align-items:start;}
+  @media(max-width:760px){.calc-grid{grid-template-columns:1fr;}}
+  .calc label{display:block;font-size:13px;color:var(--muted);font-weight:600;margin:14px 0 6px;}
+  .calc input[type=number],.calc select{
+    width:100%;background:#0a1020;border:1px solid var(--border-2);border-radius:11px;padding:12px 14px;
+    color:var(--text);font-size:15px;font-family:inherit;}
+  .calc input[type=range]{width:100%;accent-color:var(--primary);}
+  .calc input:focus,.calc select:focus{outline:none;border-color:var(--primary);box-shadow:0 0 0 3px rgba(240,160,30,.18);}
+  .result-box{background:linear-gradient(135deg,#13243a,#101a2e);border:1px solid var(--border-2);border-radius:16px;padding:24px;}
+  .result-row{display:flex;justify-content:space-between;padding:11px 0;border-bottom:1px dashed var(--border-2);font-size:14px;}
+  .result-row:last-child{border:none;}
+  .result-row b{font-size:18px;}
+  .result-big{font-size:34px;font-weight:850;color:var(--green);letter-spacing:-.5px;}
+
+  .divider{height:1px;background:var(--border);margin:34px 0;}
+  .chips{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0;}
+  .chip{font-size:12.5px;padding:6px 12px;border-radius:999px;background:var(--panel);border:1px solid var(--border);color:var(--muted);font-weight:600;}
+
+  .footer-note{margin-top:50px;padding:22px;border-radius:16px;background:rgba(239,68,68,.06);
+    border:1px solid rgba(239,68,68,.25);font-size:13px;color:var(--muted);}
+
+  /* mobile sidebar */
+  .backdrop{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:45;}
+  @media(max-width:980px){
+    .sidebar{position:fixed;left:0;top:0;transform:translateX(-100%);transition:.25s;}
+    .sidebar.open{transform:none;box-shadow:var(--shadow);}
+    .backdrop.show{display:block;}
+    .topbar .menu-btn{display:flex;align-items:center;justify-content:center;}
+    .content{padding:24px 18px 70px;}
+  }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- ============ SIDEBAR ============ -->
+  <aside class="sidebar" id="sidebar">
+    <div class="brand">
+      <div class="logo">U</div>
+      <div>
+        <div class="bt">Upro Capital</div>
+        <div class="bs">DeFi Mastery</div>
+      </div>
+    </div>
+    <nav class="nav" id="nav">
+      <div class="nav-group">Start</div>
+      <a data-view="start" class="active"><span class="ic">🏠</span> Übersicht</a>
+      <a data-view="grundlagen"><span class="ic">🎓</span> Krypto-Grundlagen</a>
+      <a data-view="plattformen"><span class="ic">🏦</span> Seriöse Plattformen</a>
+
+      <div class="nav-group">Passives Einkommen</div>
+      <a data-view="staking"><span class="ic">🔒</span> Staking-Grundlagen</a>
+      <a data-view="liquidity"><span class="ic">💧</span> Liquidity Pools</a>
+      <a data-view="yield"><span class="ic">🌾</span> Yield Farming</a>
+      <a data-view="stablecoins"><span class="ic">💵</span> Stablecoin-Income</a>
+      <a data-view="lending"><span class="ic">🤝</span> Lending &amp; Borrowing</a>
+
+      <div class="nav-group">Schutz &amp; Strategie</div>
+      <a data-view="risiken"><span class="ic">⚠️</span> Die größten Risiken</a>
+      <a data-view="sicherheit"><span class="ic">🛡️</span> Risikomanagement</a>
+      <a data-view="renditen"><span class="ic">📊</span> Realistische Renditen</a>
+      <a data-view="tools"><span class="ic">🧰</span> DeFi-Tools</a>
+      <a data-view="glossar"><span class="ic">📖</span> Glossar</a>
+    </nav>
+    <div class="sidebar-foot">
+      © 2026 Upro Capital Academy · v1.0<br>Keine Anlageberatung
+    </div>
+  </aside>
+  <div class="backdrop" id="backdrop"></div>
+
+  <!-- ============ MAIN ============ -->
+  <div class="main">
+    <div class="topbar">
+      <button class="menu-btn" id="menuBtn">☰</button>
+      <div class="crumb">DeFi Mastery&nbsp;&nbsp;/&nbsp;&nbsp;<b id="crumb">Übersicht</b></div>
+      <div class="spacer"></div>
+      <span class="pill"><span class="dot"></span> Lernfortschritt <b id="progPct" style="color:var(--text);margin-left:2px;">0%</b></span>
+    </div>
+
+    <div class="content">
+
+    <!-- =================== ÜBERSICHT =================== -->
+    <section class="view active" id="view-start">
+      <div class="hero">
+        <span class="badge">UPRO CAPITAL · ACADEMY</span>
+        <h1>DeFi Mastery — Passives Einkommen mit Krypto, sicher aufgebaut.</h1>
+        <p>Dein kompletter Lernpfad von den ersten Schritten bis zu echten Renditestrategien. Verständlich erklärt, mit
+        Schritt-für-Schritt-Anleitungen, geprüften Plattformen und einem klaren Fokus auf <b>Risikomanagement</b> –
+        damit du nicht spekulierst, sondern <b>verstehst, was du tust</b>.</p>
+      </div>
+
+      <div class="grid g4" style="margin-top:18px;">
+        <div class="stat"><div class="k">Lernmodule</div><div class="v cyan">10</div><div class="s">Vom Anfänger zum Profi</div></div>
+        <div class="stat"><div class="k">Anleitungen</div><div class="v violet">25+</div><div class="s">Schritt für Schritt</div></div>
+        <div class="stat"><div class="k">Realistische Rendite</div><div class="v green">4–12%</div><div class="s">p.a. mit Stablecoins</div></div>
+        <div class="stat"><div class="k">Fokus</div><div class="v">Sicherheit</div><div class="s">Schutz vor Verlusten</div></div>
+      </div>
+
+      <h2 class="sec">Dein Lernpfad</h2>
+      <p class="page-sub">Arbeite die Module von oben nach unten durch. Jedes baut auf dem vorherigen auf. Klicke eine Kachel an, um zu starten.</p>
+
+      <div class="tiles">
+        <div class="tile" data-go="grundlagen"><span class="tag">Pflicht</span><div class="ti">🎓</div><h4>Krypto-Grundlagen</h4><p>Wallet, Seed Phrase, Börse, Netzwerke &amp; Gebühren verstehen.</p><span class="lvl l1">Anfänger</span></div>
+        <div class="tile" data-go="plattformen"><span class="tag">Setup</span><div class="ti">🏦</div><h4>Seriöse Plattformen</h4><p>Konto eröffnen bei geprüften Anbietern – mit Screenshots.</p><span class="lvl l1">Anfänger</span></div>
+        <div class="tile" data-go="staking"><div class="ti">🔒</div><h4>Staking-Grundlagen</h4><p>Coins arbeiten lassen &amp; Belohnungen verdienen.</p><span class="lvl l1">Anfänger</span></div>
+        <div class="tile" data-go="stablecoins"><span class="tag">Beliebt</span><div class="ti">💵</div><h4>Stablecoin-Income</h4><p>Der sicherste Einstieg in passives Krypto-Einkommen.</p><span class="lvl l1">Anfänger</span></div>
+        <div class="tile" data-go="lending"><div class="ti">🤝</div><h4>Lending &amp; Borrowing</h4><p>Verleihen, Zinsen kassieren – und richtig leihen.</p><span class="lvl l2">Fortgeschritten</span></div>
+        <div class="tile" data-go="liquidity"><div class="ti">💧</div><h4>Liquidity Pools</h4><p>Wie DEXs funktionieren &amp; was Impermanent Loss ist.</p><span class="lvl l2">Fortgeschritten</span></div>
+        <div class="tile" data-go="yield"><div class="ti">🌾</div><h4>Yield Farming</h4><p>Höhere Renditen – und die Risiken dahinter.</p><span class="lvl l3">Profi</span></div>
+        <div class="tile" data-go="risiken"><span class="tag">Wichtig</span><div class="ti">⚠️</div><h4>Die größten Risiken</h4><p>Smart-Contract-Risiko, Rug Pulls, Depeg &amp; Co.</p><span class="lvl l2">Pflicht</span></div>
+        <div class="tile" data-go="sicherheit"><span class="tag">Wichtig</span><div class="ti">🛡️</div><h4>Risikomanagement</h4><p>Schutzmechanismen, die dein Kapital bewahren.</p><span class="lvl l1">Pflicht</span></div>
+      </div>
+
+      <div class="box info" style="margin-top:26px;">
+        <span class="bi">💡</span>
+        <div><div class="bt">So nutzt du dieses Dashboard optimal</div>
+        <p>Lies nicht alles auf einmal. Nimm dir pro Tag <b>ein Modul</b> vor, hake die Lern-Checklisten ab (dein Fortschritt wird gespeichert) und probiere jeden Schritt erst mit <b>kleinen Beträgen</b> aus. Krypto belohnt Geduld, nicht Hektik.</p></div>
+      </div>
+
+      <div class="footer-note">
+        <b>⚠️ Wichtiger Hinweis:</b> Dieses Dashboard dient ausschließlich der <b>Bildung</b>. Es ist <b>keine Anlage-, Steuer- oder Rechtsberatung</b>. Kryptowährungen sind hochvolatil – du kannst dein gesamtes eingesetztes Kapital verlieren. Investiere nur Geld, dessen Verlust du verkraften kannst, und triff jede Entscheidung eigenverantwortlich nach eigener Recherche (DYOR – „Do Your Own Research").
+      </div>
+    </section>
+
+    <!-- =================== GRUNDLAGEN =================== -->
+    <section class="view" id="view-grundlagen">
+      <h1 class="page">🎓 Krypto-Grundlagen &amp; erste Schritte</h1>
+      <p class="page-sub">Bevor du passives Einkommen erzeugst, musst du das Fundament verstehen. Dieses Modul erklärt die wichtigsten Begriffe so, dass du sie wirklich begreifst – ohne Vorwissen.</p>
+
+      <div class="box def"><span class="bi">📚</span><div><div class="bt">Was ist DeFi überhaupt?</div>
+      <p><b>DeFi</b> steht für <i>„Decentralized Finance"</i> – dezentrale Finanzen. Es sind Finanzdienstleistungen (Sparen, Verleihen, Tauschen, Zinsen verdienen) ohne Bank dazwischen. Statt einer Bank steuern <b>Smart Contracts</b> (selbst-ausführende Programme auf der Blockchain) die Abläufe. Du behältst die Kontrolle über dein Geld – aber auch die volle Verantwortung.</p></div></div>
+
+      <h2 class="sec"><span class="num">1</span> Die wichtigsten Begriffe</h2>
+      <div class="grid g2">
+        <div class="card"><h3>🪙 Coin vs. Token</h3><p>Ein <span class="hl">Coin</span> ist die native Währung einer eigenen Blockchain (z.&nbsp;B. Bitcoin auf Bitcoin, Ether/ETH auf Ethereum). Ein <span class="hl-v">Token</span> läuft <i>auf</i> einer fremden Blockchain (z.&nbsp;B. USDC auf Ethereum). Für DeFi brauchst du beides verstehen.</p></div>
+        <div class="card"><h3>🔗 Blockchain &amp; Netzwerk</h3><p>Eine <span class="hl">Blockchain</span> ist ein öffentliches, fälschungssicheres Kontobuch. „Netzwerke" wie <b>Ethereum</b>, <b>Solana</b>, <b>Arbitrum</b> oder <b>Polygon</b> sind verschiedene solcher Ketten – mit unterschiedlichen Gebühren und Geschwindigkeiten.</p></div>
+        <div class="card"><h3>👛 Wallet</h3><p>Deine digitale Geldbörse. Sie speichert nicht „Münzen", sondern deine <b>Schlüssel</b>, mit denen du auf dein Guthaben auf der Blockchain zugreifst. <b>Wichtig:</b> „Not your keys, not your coins."</p></div>
+        <div class="card"><h3>🔑 Private Key &amp; Seed Phrase</h3><p>Die <span class="hl-v">Seed Phrase</span> (12–24 Wörter) ist der Generalschlüssel zu deinem Vermögen. Wer sie hat, hat dein Geld. <b>Niemals</b> digital speichern, abfotografieren oder eingeben – nur auf Papier, offline.</p></div>
+        <div class="card"><h3>⛽ Gas / Gebühren</h3><p><span class="hl">Gas</span> ist die Transaktionsgebühr fürs Netzwerk. Auf Ethereum kann sie teuer sein, auf <b>Layer-2</b> (Arbitrum, Base) oder Solana nur Cent-Beträge. Du zahlst Gas immer in der nativen Coin (z.&nbsp;B. ETH).</p></div>
+        <div class="card"><h3>📈 APR vs. APY</h3><p><span class="hl-g">APR</span> = jährliche Rendite ohne Zinseszins. <span class="hl-g">APY</span> = mit Zinseszins (du reinvestierst Erträge). Bei DeFi-Angeboten immer schauen, welche Zahl gemeint ist.</p></div>
+      </div>
+
+      <h2 class="sec"><span class="num">2</span> CEX vs. DEX — die zwei Welten</h2>
+      <table class="t">
+        <tr><th>Merkmal</th><th>CEX (zentrale Börse)</th><th>DEX (dezentrale Börse)</th></tr>
+        <tr><td>Beispiele</td><td>Coinbase, Bitpanda, Kraken</td><td>Uniswap, Curve, PancakeSwap</td></tr>
+        <tr><td>Wer hält dein Geld?</td><td class="tag-mid">Die Börse (Custodial)</td><td class="tag-ok">Du selbst (Non-Custodial)</td></tr>
+        <tr><td>Einstieg mit Euro</td><td class="tag-ok">Ja (Bank/Karte)</td><td class="tag-bad">Nein, nur Krypto</td></tr>
+        <tr><td>Anmeldung</td><td>Mit Ausweis (KYC)</td><td>Nur Wallet, kein Konto</td></tr>
+        <tr><td>Ideal für</td><td>Einsteiger, Kauf von Euro</td><td>Fortgeschrittene, echtes DeFi</td></tr>
+      </table>
+      <div class="box tip"><span class="bi">✅</span><div><div class="bt">Empfohlener Weg für Anfänger</div><p>Starte bei einer <b>seriösen CEX</b> (Euro einzahlen, erste Coins kaufen, dort sicher staken). Erst wenn du dich sicher fühlst, richte eine <b>eigene Wallet</b> ein und gehe ins echte DeFi. So senkst du das Risiko enorm.</p></div></div>
+
+      <h2 class="sec"><span class="num">3</span> Anleitung: Deine erste Wallet einrichten</h2>
+      <p>Eine Wallet (z.&nbsp;B. <b>MetaMask</b> als Browser-Erweiterung oder <b>Trust Wallet</b> als App) ist dein Tor zu DeFi. So richtest du sie sicher ein:</p>
+      <ol class="steps">
+        <li><div class="st">App / Erweiterung installieren</div><div class="sd">Lade MetaMask <b>nur</b> von der offiziellen Seite <span class="hl">metamask.io</span> oder aus dem offiziellen App-Store. Achte auf Fälschungen – nie über Werbeanzeigen klicken.</div></li>
+        <li><div class="st">„Neue Wallet erstellen" wählen</div><div class="sd">Lege ein starkes Passwort fest (entsperrt nur diese App auf diesem Gerät – ist nicht die Seed Phrase).</div></li>
+        <li><div class="st">Seed Phrase notieren – offline!</div><div class="sd">Schreibe die 12 Wörter <b>per Hand auf Papier</b>. Niemals Screenshot, niemals in Cloud, Mail oder Passwort-Manager. Bewahre sie an einem sicheren Ort auf (idealerweise zwei Kopien an getrennten Orten).</div></li>
+        <li><div class="st">Seed Phrase bestätigen</div><div class="sd">Die App fragt einige Wörter ab, um sicherzustellen, dass du sie wirklich notiert hast.</div></li>
+        <li><div class="st">Test mit Kleinbetrag</div><div class="sd">Sende zuerst einen kleinen Betrag (z.&nbsp;B. 10&nbsp;€ in Krypto) an die Wallet, um den Empfang zu üben, bevor du größere Summen bewegst.</div></li>
+      </ol>
+
+      <div class="shot">
+        <div class="bar"><i class="r"></i><i class="y"></i><i class="g"></i><div class="url">app.metamask.io · Neue Wallet erstellen</div></div>
+        <div class="body">
+          <div class="mui-head"><div class="mui-logo"><span class="d"></span> MetaMask</div><span class="mui-pill">Schritt 3 / 5</span></div>
+          <div class="mui-label">Deine geheime Wiederherstellungsphrase</div>
+          <div class="grid g3" style="gap:8px;margin:6px 0;">
+            <div class="mui-field">1. ocean</div><div class="mui-field">2. table</div><div class="mui-field">3. velvet</div>
+            <div class="mui-field">4. anchor</div><div class="mui-field">5. ••••••</div><div class="mui-field">6. ••••••</div>
+          </div>
+          <div class="box danger" style="margin:12px 0 0;"><span class="bi">🚫</span><div><div class="bt">Niemals teilen!</div><p>Kein seriöser Support, keine App und kein „Gewinnspiel" wird dich jemals nach diesen Wörtern fragen. Wer fragt, ist ein Betrüger.</p></div></div>
+          <div class="mui-btn">Ich habe die Phrase sicher notiert</div>
+        </div>
+      </div>
+      <div class="cap">Nachbau: So sieht die Seed-Phrase-Anzeige beim Wallet-Setup aus.</div>
+
+      <h2 class="sec"><span class="num">4</span> Lern-Checkliste</h2>
+      <ul class="check" data-mod="grundlagen">
+        <li><span class="cb">✓</span><span class="ct">Ich verstehe den Unterschied zwischen Coin und Token.</span></li>
+        <li><span class="cb">✓</span><span class="ct">Ich weiß, warum die Seed Phrase niemals digital gespeichert werden darf.</span></li>
+        <li><span class="cb">✓</span><span class="ct">Ich kann CEX und DEX unterscheiden.</span></li>
+        <li><span class="cb">✓</span><span class="ct">Ich weiß, was Gas-Gebühren sind und warum Layer-2 günstiger ist.</span></li>
+        <li><span class="cb">✓</span><span class="ct">Ich habe (testweise) eine Wallet eingerichtet und die Seed Phrase offline gesichert.</span></li>
+      </ul>
+    </section>
+
+    <!-- =================== PLATTFORMEN =================== -->
+    <section class="view" id="view-plattformen">
+      <h1 class="page">🏦 Seriöse Plattformen &amp; Konto eröffnen</h1>
+      <p class="page-sub">Die Wahl der Plattform entscheidet über deine Sicherheit. Hier findest du etablierte, regulierte Anbieter – plus eine Schritt-für-Schritt-Anleitung zur Kontoeröffnung mit nachgebauten Screenshots.</p>
+
+      <div class="box warn"><span class="bi">🔎</span><div><div class="bt">Woran erkennst du eine seriöse Plattform?</div>
+      <p>✔ Lange Markthistorie &amp; großer Nutzerstamm · ✔ Regulierung/Lizenz in der EU/USA · ✔ Transparente Gebühren · ✔ <b>2-Faktor-Authentifizierung</b> · ✔ Versicherungs- oder Proof-of-Reserves-Nachweise · ✘ Kein Druck, „jetzt schnell" zu investieren · ✘ Keine garantierten „Traumrenditen".</p></div></div>
+
+      <h2 class="sec"><span class="num">1</span> Empfohlene Einstiegs-Plattformen (CEX)</h2>
+      <p class="muted" style="font-size:13.5px;">Auswahl etablierter Anbieter für den Euro-Einstieg. Keine Empfehlung im Sinne einer Anlageberatung – prüfe selbst Verfügbarkeit &amp; Konditionen in deinem Land.</p>
+      <table class="t">
+        <tr><th>Plattform</th><th>Herkunft / Regulierung</th><th>Stärke</th><th>Für wen</th></tr>
+        <tr><td><b>Coinbase</b></td><td>USA · börsennotiert</td><td>Sehr einsteigerfreundlich, Lern-Bereich</td><td class="tag-ok">Anfänger</td></tr>
+        <tr><td><b>Bitpanda</b></td><td>Österreich · EU-reguliert</td><td>Deutschsprachig, einfach, breites Angebot</td><td class="tag-ok">Anfänger (DACH)</td></tr>
+        <tr><td><b>Kraken</b></td><td>USA · etabliert seit 2011</td><td>Hohe Sicherheit, faire Gebühren, Staking</td><td class="tag-mid">Einsteiger+</td></tr>
+        <tr><td><b>Coinbase Wallet / MetaMask</b></td><td>Self-Custody (kein Konto)</td><td>Tor zum echten DeFi</td><td class="tag-mid">Fortgeschritten</td></tr>
+      </table>
+
+      <h2 class="sec"><span class="num">2</span> Anleitung: Konto bei einer Börse eröffnen</h2>
+      <p>Der Ablauf ist bei den meisten seriösen Anbietern (Coinbase, Bitpanda, Kraken) nahezu identisch. So gehst du vor:</p>
+      <ol class="steps">
+        <li><div class="st">Registrieren mit E-Mail</div><div class="sd">Gehe auf die <b>offizielle Website</b> (URL selbst eintippen, nicht über Werbung!). E-Mail und ein <b>starkes, einzigartiges Passwort</b> eingeben. Tipp: Passwort-Manager nutzen.</div></li>
+        <li><div class="st">E-Mail bestätigen</div><div class="sd">Du bekommst einen Bestätigungslink. Prüfe, dass die Absenderadresse wirklich zur Plattform gehört.</div></li>
+        <li><div class="st">2-Faktor-Authentifizierung (2FA) aktivieren</div><div class="sd"><b>Sofort einrichten!</b> Nutze eine Authenticator-App (Google Authenticator, Authy) statt SMS. Das ist deine wichtigste Schutzschicht gegen Konto-Diebstahl.</div></li>
+        <li><div class="st">Identität verifizieren (KYC)</div><div class="sd">Lade Ausweis/Reisepass hoch und mache ggf. ein Selfie-Video. Das ist gesetzlich vorgeschrieben und schützt dich. Dauer: meist wenige Minuten bis Stunden.</div></li>
+        <li><div class="st">Zahlungsmethode hinzufügen</div><div class="sd">Verknüpfe Bankkonto (SEPA-Überweisung = günstig) oder Karte (schnell, aber teurer). SEPA wird für größere Beträge empfohlen.</div></li>
+        <li><div class="st">Ersten Betrag einzahlen &amp; Coin kaufen</div><div class="sd">Starte klein (z.&nbsp;B. 50–100&nbsp;€). Kaufe z.&nbsp;B. einen <b>Stablecoin (USDC)</b> oder <b>ETH</b>, mit dem du später Strategien testest.</div></li>
+      </ol>
+
+      <div class="grid g2">
+        <div>
+          <div class="shot">
+            <div class="bar"><i class="r"></i><i class="y"></i><i class="g"></i><div class="url">coinbase.com/signup</div></div>
+            <div class="body">
+              <div class="mui-head"><div class="mui-logo"><span class="d" style="background:#0052ff;"></span> Coinbase</div></div>
+              <h3 style="margin:4px 0 2px;">Konto erstellen</h3>
+              <div class="mui-label">E-Mail-Adresse</div>
+              <div class="mui-field focus">du@beispiel.de</div>
+              <div class="mui-label">Passwort</div>
+              <div class="mui-field">•••••••••••• <span style="color:#34d399;font-size:11px;">stark</span></div>
+              <div class="mui-btn">Kostenloses Konto erstellen</div>
+              <p style="font-size:11.5px;color:var(--muted-2);text-align:center;margin:10px 0 0;">Mit der Anmeldung akzeptierst du die Nutzungsbedingungen.</p>
+            </div>
+          </div>
+          <div class="cap">Schritt 1: Registrierung</div>
+        </div>
+        <div>
+          <div class="shot">
+            <div class="bar"><i class="r"></i><i class="y"></i><i class="g"></i><div class="url">coinbase.com/settings/security</div></div>
+            <div class="body">
+              <div class="mui-head"><div class="mui-logo"><span class="d" style="background:#0052ff;"></span> Sicherheit</div></div>
+              <div class="mui-row"><div class="mui-coin"><span class="mui-ic" style="background:#0e6b50;">🔐</span><div><b>2FA per App</b><br><span style="font-size:12px;color:var(--muted);">Empfohlen</span></div></div><span class="mui-pill">Aktiv</span></div>
+              <div class="mui-row"><div class="mui-coin"><span class="mui-ic" style="background:#5a2d2d;">📱</span><div><b>2FA per SMS</b><br><span style="font-size:12px;color:var(--muted);">Weniger sicher</span></div></div><span style="font-size:12px;color:var(--muted-2);">Aus</span></div>
+              <div class="mui-row"><div class="mui-coin"><span class="mui-ic" style="background:#454a75;">📧</span><div><b>Login-Benachrichtigung</b></div></div><span class="mui-pill">Aktiv</span></div>
+              <div class="mui-btn ghost">Einstellungen verwalten</div>
+            </div>
+          </div>
+          <div class="cap">Schritt 3: 2FA aktivieren – sofort!</div>
+        </div>
+      </div>
+
+      <h2 class="sec"><span class="num">3</span> Eine Börse benutzen — Begriffe im Interface</h2>
+      <div class="shot">
+        <div class="bar"><i class="r"></i><i class="y"></i><i class="g"></i><div class="url">app.börse.com/trade · USDC kaufen</div></div>
+        <div class="body">
+          <div class="mui-tabs"><span class="mui-tab on">Kaufen</span><span class="mui-tab">Verkaufen</span><span class="mui-tab">Tauschen</span><span class="mui-tab">Senden</span></div>
+          <div class="mui-row"><div class="mui-coin"><span class="mui-ic ic-usdc">$</span><div><b>USD Coin</b><br><span style="font-size:12px;color:var(--muted);">USDC · Stablecoin</span></div></div><div style="text-align:right;"><b>1,00&nbsp;€</b><br><span style="font-size:12px;color:var(--muted);">Kurs</span></div></div>
+          <div class="mui-label">Betrag</div>
+          <div class="mui-field focus">100,00 € <span style="color:var(--muted);">≈ 100 USDC</span></div>
+          <div style="display:flex;justify-content:space-between;font-size:13px;color:var(--muted);margin:12px 0;"><span>Gebühr (Spread)</span><span>≈ 0,50 €</span></div>
+          <div class="mui-btn">Vorschau Kauf</div>
+        </div>
+      </div>
+      <div class="grid g3" style="margin-top:14px;">
+        <div class="box info" style="margin:0;"><span class="bi">🔄</span><div><div class="bt">Tauschen / Swap</div><p>Eine Coin direkt in eine andere wandeln (z.&nbsp;B. ETH → USDC).</p></div></div>
+        <div class="box info" style="margin:0;"><span class="bi">📤</span><div><div class="bt">Senden / Withdraw</div><p>Coins an eine andere Wallet/Adresse schicken. Immer Netzwerk prüfen!</p></div></div>
+        <div class="box info" style="margin:0;"><span class="bi">📊</span><div><div class="bt">Spread / Gebühr</div><p>Differenz zwischen Kauf- und Verkaufskurs – die „versteckte" Gebühr.</p></div></div>
+      </div>
+
+      <div class="box danger" style="margin-top:20px;"><span class="bi">⚠️</span><div><div class="bt">Die wichtigste Regel beim Senden</div><p>Beim Versenden von Coins musst du <b>Adresse UND Netzwerk</b> korrekt wählen. Sendest du USDC versehentlich über das falsche Netzwerk (z.&nbsp;B. an eine Wallet, die das Netzwerk nicht unterstützt), ist das Geld oft <b>unwiederbringlich verloren</b>. Sende immer zuerst einen <b>Testbetrag</b>.</p></div></div>
+
+      <ul class="check" data-mod="plattformen">
+        <li><span class="cb">✓</span><span class="ct">Ich habe ein Konto bei einer seriösen, regulierten Börse eröffnet.</span></li>
+        <li><span class="cb">✓</span><span class="ct">Ich habe 2FA mit einer Authenticator-App aktiviert.</span></li>
+        <li><span class="cb">✓</span><span class="ct">Ich habe die KYC-Verifizierung abgeschlossen.</span></li>
+        <li><span class="cb">✓</span><span class="ct">Ich habe einen kleinen Testbetrag eingezahlt und einen Coin gekauft.</span></li>
+        <li><span class="cb">✓</span><span class="ct">Ich verstehe die Begriffe Kaufen, Tauschen, Senden, Spread und Netzwerk.</span></li>
+      </ul>
+    </section>
+
+    <!-- =================== STAKING =================== -->
+    <section class="view" id="view-staking">
+      <h1 class="page">🔒 Staking-Grundlagen</h1>
+      <p class="page-sub">Staking ist der einfachste Einstieg in passives Krypto-Einkommen. Du „sperrst" deine Coins, hilfst dabei, das Netzwerk abzusichern – und bekommst dafür regelmäßig Belohnungen.</p>
+
+      <div class="box def"><span class="bi">🧠</span><div><div class="bt">Staking in einem Satz</div><p>Du stellst deine Coins (z.&nbsp;B. ETH, SOL, ADA) dem Blockchain-Netzwerk als „Pfand" zur Verfügung, damit es Transaktionen sicher bestätigen kann – und verdienst dafür <b>Staking-Rewards</b>, ähnlich wie Zinsen auf einem Sparkonto.</p></div></div>
+
+      <h2 class="sec"><span class="num">1</span> Wie funktioniert das technisch?</h2>
+      <p>Moderne Blockchains nutzen <span class="hl">Proof of Stake (PoS)</span>. Statt mit Rechenleistung (wie beim alten „Mining") werden Transaktionen von <b>Validatoren</b> bestätigt, die Coins hinterlegt haben. Je mehr gestakt wird, desto sicherer das Netzwerk. Als Belohnung werden neue Coins ausgeschüttet – anteilig an deinen Einsatz.</p>
+
+      <div class="grid g3">
+        <div class="card"><h3>🏦 Staking über CEX</h3><p>Am einfachsten: Bei Coinbase/Kraken einen Coin halten und „Staking" aktivieren. 1 Klick, kein technisches Wissen. Dafür etwas geringere Rendite (Börse behält Anteil).</p><span class="lvl l1">Anfänger</span></div>
+        <div class="card"><h3>💧 Liquid Staking</h3><p>Du stakest (z.&nbsp;B. ETH über <b>Lido</b>) und bekommst einen Token zurück (stETH), den du weiter nutzen kannst. So bleibt dein Kapital flexibel.</p><span class="lvl l2">Fortgeschritten</span></div>
+        <div class="card"><h3>⚙️ Eigener Validator</h3><p>Maximale Kontrolle &amp; Rendite, aber technisch anspruchsvoll (bei ETH: 32 ETH Einsatz, eigener Node). Für die meisten nicht nötig.</p><span class="lvl l3">Profi</span></div>
+      </div>
+
+      <h2 class="sec"><span class="num">2</span> Anleitung: ETH staken über Lido (Liquid Staking)</h2>
+      <ol class="steps">
+        <li><div class="st">Wallet verbinden</div><div class="sd">Gehe auf die offizielle Seite <b>lido.fi</b>, klicke „Connect Wallet" und verbinde z.&nbsp;B. MetaMask. Prüfe die URL sorgfältig.</div></li>
+        <li><div class="st">Betrag eingeben</div><div class="sd">Gib ein, wie viel ETH du staken willst. Es gibt kein Minimum wie beim Solo-Staking.</div></li>
+        <li><div class="st">Transaktion bestätigen</div><div class="sd">Bestätige in der Wallet. Du zahlst einmalig Gas-Gebühren. Danach erhältst du <b>stETH</b> im Verhältnis 1:1.</div></li>
+        <li><div class="st">Rewards beobachten</div><div class="sd">Dein stETH-Guthaben wächst automatisch täglich – das ist deine Staking-Belohnung. Du musst nichts weiter tun.</div></li>
+        <li><div class="st">Optional: stETH weiternutzen</div><div class="sd">Du kannst stETH später z.&nbsp;B. in einem Lending-Protokoll einsetzen – aber Vorsicht, das erhöht das Risiko (siehe Risiko-Modul).</div></li>
+      </ol>
+
+      <div class="shot">
+        <div class="bar"><i class="r"></i><i class="y"></i><i class="g"></i><div class="url">stake.lido.fi · Ethereum Staking</div></div>
+        <div class="body">
+          <div class="mui-head"><div class="mui-logo"><span class="d" style="background:linear-gradient(135deg,#00a3ff,#5ed3ff);"></span> Lido</div><span style="font-size:12px;color:var(--muted);">0x7f…3a2b verbunden</span></div>
+          <div class="mui-tabs"><span class="mui-tab on">Stake</span><span class="mui-tab">Wrap</span><span class="mui-tab">Withdraw</span></div>
+          <div class="mui-label">Du stakest</div>
+          <div class="mui-field focus"><span class="mui-coin"><span class="mui-ic ic-eth">Ξ</span> ETH</span><span class="mui-big" style="font-size:22px;">2,00</span></div>
+          <div class="mui-label">Du erhältst</div>
+          <div class="mui-field"><span class="mui-coin"><span class="mui-ic" style="background:#00a3ff;">st</span> stETH</span><span style="font-weight:700;">≈ 2,00</span></div>
+          <div style="display:flex;justify-content:space-between;font-size:13px;color:var(--muted);margin:14px 4px;"><span>APR</span><span class="mui-apy">3,2 %</span></div>
+          <div style="display:flex;justify-content:space-between;font-size:13px;color:var(--muted);margin:0 4px;"><span>Reward-Gebühr</span><span>10 %</span></div>
+          <div class="mui-btn">Stake</div>
+        </div>
+      </div>
+      <div class="cap">Nachbau der Lido-Staking-Oberfläche.</div>
+
+      <h2 class="sec"><span class="num">3</span> Typische Staking-Renditen (Richtwerte)</h2>
+      <table class="t">
+        <tr><th>Coin</th><th>Typische APR</th><th>Sperrfrist / Unstaking</th><th>Risiko-Profil</th></tr>
+        <tr><td><b>Ethereum (ETH)</b></td><td class="tag-ok">3 – 4 %</td><td>Tage (Warteschlange)</td><td class="tag-ok">Niedrig–mittel</td></tr>
+        <tr><td><b>Solana (SOL)</b></td><td class="tag-mid">6 – 8 %</td><td>~2–3 Tage</td><td class="tag-mid">Mittel</td></tr>
+        <tr><td><b>Cardano (ADA)</b></td><td class="tag-ok">2 – 4 %</td><td>Jederzeit (kein Lock)</td><td class="tag-ok">Niedrig</td></tr>
+        <tr><td><b>Polkadot (DOT)</b></td><td class="tag-mid">8 – 12 %</td><td>~28 Tage</td><td class="tag-mid">Mittel</td></tr>
+      </table>
+      <div class="box warn"><span class="bi">⚠️</span><div><div class="bt">Vorsicht bei „Sperrfristen" &amp; Kursrisiko</div><p>Während der <b>Unstaking-Periode</b> kommst du nicht an deine Coins. Fällt der Kurs in dieser Zeit, kannst du nicht reagieren. Und: Eine APR von 8 % nützt nichts, wenn die Coin im selben Jahr 40 % an Wert verliert. <b>Staking schützt nicht vor Kursverlusten.</b></p></div></div>
+
+      <ul class="check" data-mod="staking">
+        <li><span class="cb">✓</span><span class="ct">Ich verstehe, was Proof of Stake ist und warum es Belohnungen gibt.</span></li>
+        <li><span class="cb">✓</span><span class="ct">Ich kenne den Unterschied zwischen CEX-Staking, Liquid Staking und Solo-Staking.</span></li>
+        <li><span class="cb">✓</span><span class="ct">Ich weiß, dass Staking nicht vor Kursverlusten schützt.</span></li>
+        <li><span class="cb">✓</span><span class="ct">Ich habe Sperrfristen und Unstaking-Zeiten verstanden.</span></li>
+      </ul>
+    </section>
+
+    <!-- =================== LIQUIDITY POOLS =================== -->
+    <section class="view" id="view-liquidity">
+      <h1 class="page">💧 Liquidity Pools</h1>
+      <p class="page-sub">Liquidity Pools sind das Herz dezentraler Börsen (DEX). Wer Liquidität bereitstellt, verdient an jedem Tausch mit – muss aber das wichtigste DeFi-Konzept verstehen: <b>Impermanent Loss</b>.</p>
+
+      <div class="box def"><span class="bi">🧠</span><div><div class="bt">Was ist ein Liquidity Pool?</div><p>Statt Käufer und Verkäufer direkt zu matchen (wie eine Bank), nutzen DEX wie <b>Uniswap</b> einen gemeinsamen „Topf" aus zwei Coins (z.&nbsp;B. ETH + USDC). Wer tauschen will, handelt gegen diesen Topf. Du als <span class="hl-v">Liquidity Provider (LP)</span> legst beide Coins ein und bekommst einen Anteil der <b>Handelsgebühren</b> (typisch 0,3 % pro Trade).</p></div></div>
+
+      <h2 class="sec"><span class="num">1</span> So funktioniert es (AMM-Prinzip)</h2>
+      <p>Ein <span class="hl">Automated Market Maker (AMM)</span> bestimmt den Preis über eine Formel (klassisch: <code style="background:var(--panel);padding:2px 7px;border-radius:6px;">x · y = k</code>). Vereinfacht: Je mehr von einer Coin gekauft wird, desto teurer wird sie im Pool. Du verdienst, weil jeder Trade eine kleine Gebühr in den Pool zahlt, die an alle LPs verteilt wird.</p>
+
+      <div class="grid g2">
+        <div class="card"><h3>✅ Deine Einnahmen</h3><ul><li><b>Handelsgebühren</b> – Anteil an jedem Swap im Pool.</li><li>Oft zusätzlich <b>Reward-Token</b> als Anreiz (→ Yield Farming).</li><li>Passiv: Du musst nichts aktiv handeln.</li></ul></div>
+        <div class="card"><h3>⚠️ Dein Hauptrisiko</h3><ul><li><b>Impermanent Loss</b> (siehe unten).</li><li>Smart-Contract-Bugs des Pools.</li><li>Kursverlust beider Coins.</li></ul></div>
+      </div>
+
+      <h2 class="sec"><span class="num">2</span> Impermanent Loss verständlich erklärt</h2>
+      <div class="box warn"><span class="bi">📉</span><div><div class="bt">Das musst du verstehen, bevor du LP wirst</div>
+      <p><b>Impermanent Loss (IL)</b> entsteht, wenn sich die Kurse der beiden Coins im Pool <b>unterschiedlich entwickeln</b>. Der AMM gleicht ständig aus – dadurch hältst du am Ende mehr von der schwächeren und weniger von der stärkeren Coin. Ergebnis: Du hast oft <b>weniger</b>, als wenn du beide Coins einfach gehalten hättest („HODL"). „Impermanent" (vorübergehend) heißt: Der Verlust ist nur theoretisch, solange du drin bleibst – ziehst du bei ungünstigem Kurs raus, wird er <b>real</b>.</p></div></div>
+
+      <table class="t">
+        <tr><th>Kursänderung einer Coin</th><th>Ungefährer Impermanent Loss</th></tr>
+        <tr><td>+25 %</td><td class="tag-ok">~0,6 %</td></tr>
+        <tr><td>+50 %</td><td class="tag-mid">~2,0 %</td></tr>
+        <tr><td>+100 % (Verdopplung)</td><td class="tag-mid">~5,7 %</td></tr>
+        <tr><td>+400 %</td><td class="tag-bad">~25 %</td></tr>
+      </table>
+      <div class="box tip"><span class="bi">✅</span><div><div class="bt">So minimierst du Impermanent Loss</div><p>Wähle Pools mit <b>zwei Stablecoins</b> (z.&nbsp;B. USDC/USDT) oder <b>eng korrelierten Coins</b> (z.&nbsp;B. ETH/stETH). Da sich deren Kurse kaum auseinanderbewegen, ist der IL minimal – und du kassierst trotzdem Gebühren. Deshalb sind Stable-Pools bei Curve so beliebt.</p></div></div>
+
+      <h2 class="sec"><span class="num">3</span> Anleitung: Liquidität bei Uniswap bereitstellen</h2>
+      <ol class="steps">
+        <li><div class="st">Wallet verbinden &amp; Pool wählen</div><div class="sd">Auf <b>app.uniswap.org</b> → „Pool" → „New Position". Wähle ein Paar, z.&nbsp;B. USDC/ETH. Für Einsteiger: ein Stable-Paar.</div></li>
+        <li><div class="st">Beide Coins bereithalten</div><div class="sd">Du musst <b>beide</b> Coins im Pool-Verhältnis besitzen. Ggf. vorher die Hälfte tauschen.</div></li>
+        <li><div class="st">Preisspanne festlegen (bei v3)</div><div class="sd">Bei Uniswap v3 wählst du eine Preisspanne, in der dein Kapital aktiv ist – enger = mehr Gebühren, aber höheres IL-Risiko. Anfänger: weite Spanne wählen.</div></li>
+        <li><div class="st">Bestätigen &amp; LP-Position erhalten</div><div class="sd">Transaktion bestätigen. Du erhältst eine LP-Position (als NFT bei v3), die deine Einlage repräsentiert.</div></li>
+        <li><div class="st">Gebühren ernten</div><div class="sd">Aufgelaufene Gebühren kannst du jederzeit „claimen" oder beim Auflösen mitnehmen.</div></li>
+      </ol>
+
+      <div class="shot">
+        <div class="bar"><i class="r"></i><i class="y"></i><i class="g"></i><div class="url">app.uniswap.org/pool/new</div></div>
+        <div class="body">
+          <div class="mui-head"><div class="mui-logo"><span class="d" style="background:#ff007a;"></span> Uniswap</div><span style="font-size:12px;color:var(--muted);">v3 · Ethereum</span></div>
+          <div class="mui-label">Coin-Paar</div>
+          <div style="display:flex;gap:10px;">
+            <div class="mui-field focus" style="flex:1;"><span class="mui-coin"><span class="mui-ic ic-usdc">$</span> USDC</span></div>
+            <div class="mui-field" style="flex:1;"><span class="mui-coin"><span class="mui-ic ic-eth">Ξ</span> ETH</span></div>
+          </div>
+          <div class="mui-label">Einzahlung</div>
+          <div class="mui-field">500 USDC</div>
+          <div class="mui-field">0,16 ETH</div>
+          <div style="display:flex;justify-content:space-between;font-size:13px;color:var(--muted);margin:14px 4px;"><span>Gebühren-Tier</span><span class="mui-pill">0,30 %</span></div>
+          <div style="display:flex;justify-content:space-between;font-size:13px;color:var(--muted);margin:0 4px;"><span>Geschätzte APR</span><span class="mui-apy">12 – 18 %</span></div>
+          <div class="mui-btn">Vorschau &amp; Liquidität hinzufügen</div>
+        </div>
+      </div>
+      <div class="cap">Nachbau: Liquidität in einem Uniswap-Pool bereitstellen.</div>
+
+      <ul class="check" data-mod="liquidity">
+        <li><span class="cb">✓</span><span class="ct">Ich verstehe, wie ein AMM und ein Liquidity Pool funktionieren.</span></li>
+        <li><span class="cb">✓</span><span class="ct">Ich kann Impermanent Loss in eigenen Worten erklären.</span></li>
+        <li><span class="cb">✓</span><span class="ct">Ich weiß, warum Stable-Pools für Einsteiger sicherer sind.</span></li>
+        <li><span class="cb">✓</span><span class="ct">Ich kenne den Ablauf, eine LP-Position zu eröffnen.</span></li>
+      </ul>
+    </section>
+
+    <!-- =================== YIELD FARMING =================== -->
+    <section class="view" id="view-yield">
+      <h1 class="page">🌾 Yield Farming</h1>
+      <p class="page-sub">Yield Farming ist die „Königsdisziplin" – höhere Renditen durch das Stapeln mehrerer DeFi-Strategien. Mehr Ertrag bedeutet aber fast immer auch <b>mehr Risiko</b>. Dieses Modul ist für Fortgeschrittene.</p>
+
+      <div class="box def"><span class="bi">🧠</span><div><div class="bt">Was ist Yield Farming?</div><p>Beim Yield Farming maximierst du deine Rendite, indem du DeFi-Bausteine kombinierst: Du stellst Liquidität bereit (LP) und legst deine LP-Token zusätzlich in einem „Farm"-Vertrag an, der dir <b>Reward-Token</b> ausschüttet. Manche stapeln noch weiter (Lending → LP → Farm). Renditen werden meist als hohe <b>APY</b> beworben.</p></div></div>
+
+      <div class="box danger"><span class="bi">🚨</span><div><div class="bt">Realitätscheck: Vorsicht bei „1000 % APY"</div><p>Extrem hohe APYs stammen fast immer aus frisch gedruckten <b>Reward-Token</b>, deren Kurs schnell verfällt. Die beworbene Zahl ist eine Momentaufnahme und sinkt rapide, sobald viele mitmachen. Solche „Farms" sind häufig kurzlebig oder enden in einem <b>Rug Pull</b>. Hohe Zahl ≠ hoher Gewinn.</p></div></div>
+
+      <h2 class="sec"><span class="num">1</span> Wie Yield Farming aufgebaut ist</h2>
+      <ol class="steps">
+        <li><div class="st">Liquidität bereitstellen</div><div class="sd">Du legst z.&nbsp;B. USDC/ETH in einen Pool und erhältst <b>LP-Token</b>.</div></li>
+        <li><div class="st">LP-Token „staken" (Farmen)</div><div class="sd">Diese LP-Token legst du in einen Farm-Vertrag. Dafür gibt es zusätzlich <b>Reward-Token</b> des Protokolls.</div></li>
+        <li><div class="st">Rewards ernten &amp; reinvestieren</div><div class="sd">Du erntest Rewards regelmäßig. Manche „Auto-Compounder" (z.&nbsp;B. Vaults) reinvestieren automatisch für Zinseszins.</div></li>
+      </ol>
+
+      <h2 class="sec"><span class="num">2</span> Renditequellen im Überblick</h2>
+      <table class="t">
+        <tr><th>Quelle</th><th>Beschreibung</th><th>Nachhaltigkeit</th></tr>
+        <tr><td><b>Handelsgebühren</b></td><td>Anteil an Swaps im Pool</td><td class="tag-ok">Nachhaltig</td></tr>
+        <tr><td><b>Reward-Token (Emission)</b></td><td>Frisch ausgegebene Protokoll-Token</td><td class="tag-bad">Oft verwässernd</td></tr>
+        <tr><td><b>Lending-Zinsen</b></td><td>Zins von Kreditnehmern</td><td class="tag-ok">Nachhaltig</td></tr>
+        <tr><td><b>Incentives / Bribes</b></td><td>Zusatzbelohnungen von Projekten</td><td class="tag-mid">Schwankend</td></tr>
+      </table>
+
+      <h2 class="sec"><span class="num">3</span> Beispiel-Vault (Auto-Compounder)</h2>
+      <div class="shot">
+        <div class="bar"><i class="r"></i><i class="y"></i><i class="g"></i><div class="url">app.farm-protokoll.fi/vaults</div></div>
+        <div class="body">
+          <div class="mui-tabs"><span class="mui-tab on">Alle Vaults</span><span class="mui-tab">Stable</span><span class="mui-tab">Meine</span></div>
+          <div class="mui-row"><div class="mui-coin"><span class="mui-ic ic-usdc">$</span><div><b>USDC / USDT</b><br><span style="font-size:12px;color:var(--muted);">Stable-Pool · niedriges IL</span></div></div><div style="text-align:right;"><div class="mui-apy">9,4 %</div><span style="font-size:11px;color:var(--muted);">APY · auto</span></div></div>
+          <div class="mui-row"><div class="mui-coin"><span class="mui-ic ic-eth">Ξ</span><div><b>ETH / stETH</b><br><span style="font-size:12px;color:var(--muted);">Korreliert · niedriges IL</span></div></div><div style="text-align:right;"><div class="mui-apy">7,1 %</div><span style="font-size:11px;color:var(--muted);">APY · auto</span></div></div>
+          <div class="mui-row"><div class="mui-coin"><span class="mui-ic" style="background:#7c3aed;">?</span><div><b>NEW / ETH</b><br><span style="font-size:12px;color:#f87171;">Neuer Token · hohes Risiko</span></div></div><div style="text-align:right;"><div class="mui-apy" style="color:#fbbf24;">340 %</div><span style="font-size:11px;color:var(--muted);">APY · volatil</span></div></div>
+        </div>
+      </div>
+      <div class="cap">Vergleich: nachhaltige Stable-Vaults vs. riskante „High-APY"-Farm.</div>
+
+      <div class="box tip"><span class="bi">✅</span><div><div class="bt">Vernünftige Yield-Farming-Strategie</div><p>Bleib bei <b>etablierten Protokollen</b> (Curve, Convex, Aave, Beefy) und <b>Stable-/korrelierten Paaren</b>. Realistisch sind damit <b>5–15 % APY</b> – nachhaltig und mit überschaubarem Risiko. Finger weg von anonymen Projekten mit dreistelligen APYs.</p></div></div>
+
+      <ul class="check" data-mod="yield">
+        <li><span class="cb">✓</span><span class="ct">Ich verstehe, wie Yield Farming aus mehreren Bausteinen besteht.</span></li>
+        <li><span class="cb">✓</span><span class="ct">Ich weiß, warum extrem hohe APYs ein Warnsignal sind.</span></li>
+        <li><span class="cb">✓</span><span class="ct">Ich kann nachhaltige von verwässernden Renditequellen unterscheiden.</span></li>
+        <li><span class="cb">✓</span><span class="ct">Ich kenne eine vernünftige, risikoärmere Farming-Strategie.</span></li>
+      </ul>
+    </section>
+
+    <!-- =================== STABLECOINS =================== -->
+    <section class="view" id="view-stablecoins">
+      <h1 class="page">💵 Stablecoin-Income</h1>
+      <p class="page-sub">Der ruhigste, anfängerfreundlichste Weg zu passivem Krypto-Einkommen. Stablecoins sind an den US-Dollar gekoppelt – du verdienst Rendite, ohne der wilden Kursachterbahn ausgesetzt zu sein.</p>
+
+      <div class="box def"><span class="bi">🧠</span><div><div class="bt">Was sind Stablecoins?</div><p><span class="hl">Stablecoins</span> sind Token, deren Wert stabil bei ca. 1&nbsp;US-Dollar gehalten wird – z.&nbsp;B. <b>USDC</b>, <b>USDT</b> oder <b>DAI</b>. Sie verbinden die Stabilität von „Dollar" mit der Flexibilität von Krypto. Damit kannst du Rendite verdienen, ohne dass dein Kapital um 30 % schwankt.</p></div></div>
+
+      <h2 class="sec"><span class="num">1</span> Die wichtigsten Stablecoins</h2>
+      <table class="t">
+        <tr><th>Stablecoin</th><th>Typ</th><th>Besicherung</th><th>Einschätzung</th></tr>
+        <tr><td><b>USDC</b></td><td>Fiat-besichert</td><td>Echte USD &amp; Anleihen (Circle)</td><td class="tag-ok">Gilt als sehr solide</td></tr>
+        <tr><td><b>USDT (Tether)</b></td><td>Fiat-besichert</td><td>Reserven (Tether)</td><td class="tag-mid">Größter, aber weniger transparent</td></tr>
+        <tr><td><b>DAI</b></td><td>Krypto-besichert</td><td>Überbesichert mit Krypto (MakerDAO)</td><td class="tag-ok">Dezentral, robust</td></tr>
+        <tr><td><b>Algorithmische</b></td><td>Algo (z.&nbsp;B. ex-UST)</td><td>Nur Code, keine Deckung</td><td class="tag-bad">Finger weg – Crash-Gefahr</td></tr>
+      </table>
+      <div class="box danger"><span class="bi">⚠️</span><div><div class="bt">Lektion aus der Geschichte: Terra/UST</div><p>2022 verlor der <b>algorithmische</b> Stablecoin UST seine Bindung („Depeg") und stürzte von 1&nbsp;$ auf nahe 0 ab – Milliarden wurden vernichtet. <b>Merke:</b> Nutze nur seriöse, gut besicherte Stablecoins (USDC, DAI). Algorithmische Stablecoins ohne echte Deckung sind hochgefährlich.</p></div></div>
+
+      <h2 class="sec"><span class="num">2</span> Wege, mit Stablecoins Rendite zu verdienen</h2>
+      <div class="grid g3">
+        <div class="card"><h3>🏦 CEX-Earn</h3><p>Stablecoins bei Coinbase/Kraken halten und „Earn" aktivieren. Einfach, aber Plattformrisiko.</p><div class="prog"><div style="width:35%"></div></div><span class="muted" style="font-size:12.5px;">Risiko: niedrig–mittel · ~4–8 %</span></div>
+        <div class="card"><h3>🤝 Lending (Aave)</h3><p>Stablecoins in ein geprüftes Lending-Protokoll einzahlen und Zinsen von Kreditnehmern kassieren.</p><div class="prog"><div style="width:45%"></div></div><span class="muted" style="font-size:12.5px;">Risiko: mittel · ~3–10 %</span></div>
+        <div class="card"><h3>💧 Stable-Pools (Curve)</h3><p>USDC/USDT-Pool – Gebühren ohne nennenswerten Impermanent Loss.</p><div class="prog"><div style="width:55%"></div></div><span class="muted" style="font-size:12.5px;">Risiko: mittel · ~5–12 %</span></div>
+      </div>
+
+      <h2 class="sec"><span class="num">3</span> Anleitung: USDC bei Aave verleihen</h2>
+      <ol class="steps">
+        <li><div class="st">USDC besorgen</div><div class="sd">Auf einer CEX kaufen und in deine Wallet senden (auf einem günstigen Netzwerk wie Arbitrum/Base/Polygon).</div></li>
+        <li><div class="st">Aave öffnen &amp; Wallet verbinden</div><div class="sd">Gehe auf <b>app.aave.com</b>, verbinde die Wallet, wähle das passende Netzwerk.</div></li>
+        <li><div class="st">USDC „Supply"</div><div class="sd">Wähle USDC, klicke „Supply", gib den Betrag ein und bestätige. Du erhältst <b>aUSDC</b>, das automatisch verzinst wird.</div></li>
+        <li><div class="st">Zinsen wachsen automatisch</div><div class="sd">Dein Guthaben steigt sekündlich. Du kannst jederzeit abheben (sofern Liquidität im Pool ist).</div></li>
+      </ol>
+
+      <div class="shot">
+        <div class="bar"><i class="r"></i><i class="y"></i><i class="g"></i><div class="url">app.aave.com · Supply USDC</div></div>
+        <div class="body">
+          <div class="mui-head"><div class="mui-logo"><span class="d" style="background:linear-gradient(135deg,#b6509e,#2ebac6);"></span> Aave</div><span style="font-size:12px;color:var(--muted);">Base-Netzwerk</span></div>
+          <div class="mui-row"><div class="mui-coin"><span class="mui-ic ic-usdc">$</span><div><b>USDC</b><br><span style="font-size:12px;color:var(--muted);">Supply APY</span></div></div><div class="mui-apy">5,8 %</div></div>
+          <div class="mui-label">Betrag (Supply)</div>
+          <div class="mui-field focus">1.000 USDC <span style="color:var(--muted);">≈ 1.000 $</span></div>
+          <div style="display:flex;justify-content:space-between;font-size:13px;color:var(--muted);margin:14px 4px;"><span>Erwarteter Ertrag / Jahr</span><span style="color:#34d399;font-weight:700;">≈ 58 $</span></div>
+          <div style="display:flex;justify-content:space-between;font-size:13px;color:var(--muted);margin:0 4px;"><span>Als Sicherheit nutzbar</span><span class="mui-pill">Ja</span></div>
+          <div class="mui-btn">Supply USDC</div>
+        </div>
+      </div>
+      <div class="cap">Nachbau: Stablecoins bei Aave verleihen und Zinsen verdienen.</div>
+
+      <div class="box tip"><span class="bi">✅</span><div><div class="bt">Warum das der beste Einstieg ist</div><p>Kein Kursrisiko durch Volatilität (1 USDC bleibt ~1 $), planbare Zinsen, etablierte Protokolle. Genau deshalb empfehlen wir <b>Stablecoin-Lending</b> als erste „echte" DeFi-Strategie – noch vor Liquidity Pools oder Yield Farming.</p></div></div>
+
+      <ul class="check" data-mod="stablecoins">
+        <li><span class="cb">✓</span><span class="ct">Ich weiß, was Stablecoins sind und wie sie ihre Bindung halten.</span></li>
+        <li><span class="cb">✓</span><span class="ct">Ich kenne den Unterschied zwischen besicherten und algorithmischen Stablecoins.</span></li>
+        <li><span class="cb">✓</span><span class="ct">Ich kenne mindestens drei Wege, mit Stablecoins Rendite zu verdienen.</span></li>
+        <li><span class="cb">✓</span><span class="ct">Ich habe (testweise) Stablecoins verliehen und den Zinsfluss verstanden.</span></li>
+      </ul>
+    </section>
+
+    <!-- =================== LENDING =================== -->
+    <section class="view" id="view-lending">
+      <h1 class="page">🤝 Lending &amp; Borrowing</h1>
+      <p class="page-sub">DeFi-Lending ist wie eine Bank ohne Bank: Einzahler verdienen Zinsen, Kreditnehmer hinterlegen Sicherheiten. Verstehst du das Zusammenspiel, eröffnen sich passive Einkünfte – und mächtige (aber riskante) Strategien.</p>
+
+      <div class="box def"><span class="bi">🧠</span><div><div class="bt">Das Grundprinzip</div><p>Protokolle wie <b>Aave</b> oder <b>Compound</b> bringen zwei Seiten zusammen: <span class="hl-g">Lender</span> (Verleiher) zahlen Coins ein und kassieren Zinsen. <span class="hl-v">Borrower</span> (Kreditnehmer) hinterlegen Krypto als Sicherheit und leihen sich andere Coins. Alles läuft automatisch über Smart Contracts – ohne Bonitätsprüfung, dafür <b>überbesichert</b>.</p></div></div>
+
+      <h2 class="sec"><span class="num">1</span> Die Seite des Verleihers (passives Einkommen)</h2>
+      <p>Das ist die einsteigerfreundliche Seite: Du zahlst z.&nbsp;B. USDC ein und verdienst Zinsen, die Kreditnehmer zahlen. Die Höhe schwankt mit Angebot &amp; Nachfrage. Vorteil: keine Sperrfrist (jederzeit abhebbar, sofern Liquidität da ist).</p>
+
+      <h2 class="sec"><span class="num">2</span> Die Seite des Kreditnehmers (Vorsicht!)</h2>
+      <p>Borrowing ist mächtig, aber gefährlich. Du hinterlegst z.&nbsp;B. 1.000 $ in ETH und darfst dir bis zu einem Limit (z.&nbsp;B. 75 %) andere Coins leihen. Zwei zentrale Begriffe:</p>
+      <div class="grid g2">
+        <div class="card"><h3>📊 Loan-to-Value (LTV)</h3><p>Verhältnis von Kredit zu Sicherheit. Bei 75 % max. LTV darfst du dir gegen 1.000 $ Sicherheit bis 750 $ leihen. <b>Je näher am Limit, desto gefährlicher.</b></p></div>
+        <div class="card"><h3>⚡ Liquidation</h3><p>Fällt der Wert deiner Sicherheit zu stark (Health Factor &lt; 1), wird sie <b>automatisch verkauft</b>, um den Kredit zu decken – oft mit Strafgebühr. Du verlierst einen Teil deines Kapitals.</p></div>
+      </div>
+
+      <div class="box danger"><span class="bi">🚨</span><div><div class="bt">Der häufigste Anfängerfehler</div><p>Sich zu nah am Limit leihen. Ein normaler Krypto-Kurssturz reicht dann, um deine Position zu <b>liquidieren</b>. <b>Regel:</b> Wenn du überhaupt leihst, halte den <b>Health Factor</b> hoch (z.&nbsp;B. &gt; 2) und leihe nur einen Bruchteil dessen, was möglich wäre.</p></div></div>
+
+      <h2 class="sec"><span class="num">3</span> Der „Health Factor" – dein Sicherheits-Tacho</h2>
+      <div class="shot">
+        <div class="bar"><i class="r"></i><i class="y"></i><i class="g"></i><div class="url">app.aave.com/dashboard</div></div>
+        <div class="body">
+          <div class="grid g2" style="gap:14px;">
+            <div>
+              <div class="mui-label">Deine Sicherheit</div>
+              <div class="mui-row"><div class="mui-coin"><span class="mui-ic ic-eth">Ξ</span> ETH</div><b>1.000 $</b></div>
+              <div class="mui-label" style="margin-top:14px;">Geliehen</div>
+              <div class="mui-row"><div class="mui-coin"><span class="mui-ic ic-usdc">$</span> USDC</div><b>400 $</b></div>
+            </div>
+            <div class="result-box" style="padding:18px;">
+              <div style="font-size:12px;color:var(--muted);">Health Factor</div>
+              <div class="result-big" style="font-size:40px;">1,87</div>
+              <div class="prog" style="margin-top:6px;"><div style="width:70%;background:linear-gradient(90deg,#ef4444,#f59e0b,#10b981);"></div></div>
+              <p style="font-size:12px;color:var(--muted);margin:8px 0 0;">&gt; 1 = sicher · &lt; 1 = <span style="color:#f87171;">Liquidation!</span> Halte Puffer.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="cap">Der Health Factor zeigt, wie weit du von einer Liquidation entfernt bist.</div>
+
+      <h2 class="sec"><span class="num">4</span> Sinnvolle Anwendungsfälle für Borrowing</h2>
+      <ul>
+        <li><b>Liquidität ohne Verkauf:</b> Du brauchst Bargeld, willst aber deine ETH behalten → kleinen Stablecoin-Kredit aufnehmen statt verkaufen (Steuer/Überzeugung).</li>
+        <li><b>Stablecoin-Loop (Profi):</b> Stablecoins einlegen, leihen, wieder einlegen – erhöht Rendite, aber auch Risiko. Nur für Erfahrene.</li>
+        <li><b>NICHT empfohlen:</b> Hebel auf volatile Coins, um „mehr zu gewinnen" – das ist Spekulation, kein passives Einkommen.</li>
+      </ul>
+
+      <ul class="check" data-mod="lending">
+        <li><span class="cb">✓</span><span class="ct">Ich verstehe das Lender/Borrower-Prinzip und Überbesicherung.</span></li>
+        <li><span class="cb">✓</span><span class="ct">Ich kann LTV, Liquidation und Health Factor erklären.</span></li>
+        <li><span class="cb">✓</span><span class="ct">Ich weiß, warum man niemals nahe am Leih-Limit operieren sollte.</span></li>
+        <li><span class="cb">✓</span><span class="ct">Ich kenne sinnvolle (und unsinnige) Anwendungsfälle für Borrowing.</span></li>
+      </ul>
+    </section>
+
+    <!-- =================== RISIKEN =================== -->
+    <section class="view" id="view-risiken">
+      <h1 class="page">⚠️ Die größten DeFi-Risiken</h1>
+      <p class="page-sub">Renditen sind nur die halbe Wahrheit. Wer in DeFi langfristig erfolgreich ist, kennt die Risiken besser als die Chancen. Dieses Modul ist <b>Pflicht</b> – lies es, bevor du echtes Geld einsetzt.</p>
+
+      <div class="box danger"><span class="bi">🚨</span><div><div class="bt">Die wichtigste Wahrheit über DeFi</div><p>In DeFi gibt es <b>keine Einlagensicherung</b>, keinen Kundenservice, der Geld zurückbucht, und keine zweite Chance bei Fehlern. Geht etwas schief – ein Hack, ein Tippfehler, ein Betrug – ist dein Geld in der Regel <b>endgültig weg</b>. Deshalb steht Sicherheit über Rendite.</p></div></div>
+
+      <h2 class="sec"><span class="num">1</span> Smart Contract Risiko</h2>
+      <p>DeFi läuft über <span class="hl">Smart Contracts</span> – Programmcode. Code kann <b>Fehler (Bugs)</b> enthalten oder <b>Sicherheitslücken</b> haben, die Hacker ausnutzen. Schon ein einziger Fehler kann dazu führen, dass ein ganzer Pool leergeräumt wird. Selbst geprüfte Protokolle wurden schon gehackt.</p>
+      <div class="grid g2">
+        <div class="card"><h3>🔍 So senkst du das Risiko</h3><ul><li>Nur <b>etablierte, ge-auditete</b> Protokolle (mehrere Audits, lange Historie).</li><li>Hohes <b>TVL</b> (Total Value Locked) = mehr Vertrauen &amp; Tests durch andere.</li><li>Auf <b>Bug-Bounty-Programme</b> achten.</li><li>Neue, unbekannte Protokolle meiden oder nur mit Kleinstbeträgen testen.</li></ul></div>
+        <div class="card"><h3>🧨 Warnzeichen</h3><ul><li>Kein Audit oder anonymes „Audit" ohne Namen.</li><li>Anonymes Team ohne Track-Record.</li><li>Code nicht öffentlich (Open Source).</li><li>Sehr junges Projekt mit aggressivem Marketing.</li></ul></div>
+      </div>
+
+      <h2 class="sec"><span class="num">2</span> Die Risiko-Landkarte</h2>
+      <table class="t">
+        <tr><th>Risiko</th><th>Was passiert</th><th>Schweregrad</th></tr>
+        <tr><td><b>Smart-Contract-Hack</b></td><td>Code-Lücke wird ausgenutzt, Pool wird geleert</td><td class="tag-bad">Hoch</td></tr>
+        <tr><td><b>Rug Pull / Exit Scam</b></td><td>Entwickler verschwinden mit dem Geld der Nutzer</td><td class="tag-bad">Hoch</td></tr>
+        <tr><td><b>Stablecoin-Depeg</b></td><td>Ein Stablecoin verliert seine 1-$-Bindung</td><td class="tag-bad">Hoch</td></tr>
+        <tr><td><b>Impermanent Loss</b></td><td>Verlust durch Kursverschiebung im LP</td><td class="tag-mid">Mittel</td></tr>
+        <tr><td><b>Liquidation</b></td><td>Sicherheit wird beim Leihen zwangsverkauft</td><td class="tag-mid">Mittel</td></tr>
+        <tr><td><b>Phishing / Wallet-Drainer</b></td><td>Du signierst eine bösartige Transaktion</td><td class="tag-bad">Hoch</td></tr>
+        <tr><td><b>Plattform-/CEX-Risiko</b></td><td>Börse wird insolvent oder gehackt (z.&nbsp;B. FTX)</td><td class="tag-mid">Mittel</td></tr>
+        <tr><td><b>Regulatorik &amp; Steuer</b></td><td>Rechtslage ändert sich, steuerliche Pflichten</td><td class="tag-mid">Mittel</td></tr>
+        <tr><td><b>Eigenfehler</b></td><td>Falsches Netzwerk, Tippfehler, Seed verloren</td><td class="tag-bad">Hoch</td></tr>
+      </table>
+
+      <h2 class="sec"><span class="num">3</span> Rug Pull &amp; Scams erkennen</h2>
+      <div class="box warn"><span class="bi">🎣</span><div><div class="bt">Typische Betrugsmaschen</div>
+      <p>• <b>Rug Pull:</b> Ein neues Projekt lockt mit Mega-APY, dann ziehen die Macher die Liquidität ab.<br>
+      • <b>Phishing-Seiten:</b> Gefälschte Klone echter Apps (z.&nbsp;B. „uniswaρ.org"), die deine Wallet leeren.<br>
+      • <b>Fake-Support:</b> „Mitarbeiter" im Discord/Telegram, die nach deiner Seed Phrase fragen.<br>
+      • <b>Airdrop-Fallen:</b> Unbekannte Token in der Wallet, die beim Interagieren deine Coins stehlen.<br>
+      • <b>„Garantierte" Renditen:</b> Versprechen wie „10 % pro Woche, risikofrei" sind <b>immer</b> Betrug.</p></div></div>
+
+      <ul class="check" data-mod="risiken">
+        <li><span class="cb">✓</span><span class="ct">Ich verstehe das Smart-Contract-Risiko und wie ich es senke.</span></li>
+        <li><span class="cb">✓</span><span class="ct">Ich kenne die wichtigsten DeFi-Risiken und ihren Schweregrad.</span></li>
+        <li><span class="cb">✓</span><span class="ct">Ich kann einen Rug Pull und typische Scams erkennen.</span></li>
+        <li><span class="cb">✓</span><span class="ct">Ich weiß, dass „garantierte" hohe Renditen ein Betrugssignal sind.</span></li>
+      </ul>
+    </section>
+
+    <!-- =================== SICHERHEIT =================== -->
+    <section class="view" id="view-sicherheit">
+      <h1 class="page">🛡️ Risikomanagement &amp; Schutzmechanismen</h1>
+      <p class="page-sub">Wissen schützt nur, wenn du es anwendest. Hier sind die konkreten Schutzmechanismen und Regeln, mit denen Profis ihr Kapital bewahren – auch wenn etwas schiefgeht.</p>
+
+      <h2 class="sec"><span class="num">1</span> Die 10 goldenen Schutzregeln</h2>
+      <ol class="steps">
+        <li><div class="st">Investiere nur, was du verlieren kannst</div><div class="sd">DeFi gehört nicht zur Notreserve oder Altersvorsorge. Setze nur „Spielgeld" ein, dessen Totalverlust dich nicht ruiniert.</div></li>
+        <li><div class="st">Starte mit Stablecoins</div><div class="sd">Beginne risikoarm (Stablecoin-Lending), bevor du zu volatilen Strategien gehst.</div></li>
+        <li><div class="st">Hardware-Wallet für größere Beträge</div><div class="sd">Eine <b>Ledger</b> oder <b>Trezor</b> hält deine Schlüssel offline. Für Summen, die wehtun würden, Pflicht.</div></li>
+        <li><div class="st">Seed Phrase nur offline</div><div class="sd">Auf Papier/Metall, nie digital. Niemals eingeben außer beim Wiederherstellen der echten Wallet.</div></li>
+        <li><div class="st">2-Faktor &amp; einzigartige Passwörter</div><div class="sd">Authenticator-App statt SMS, Passwort-Manager für jeden Dienst ein eigenes Passwort.</div></li>
+        <li><div class="st">Jede Transaktion prüfen</div><div class="sd">Lies, was du in der Wallet signierst. Bei „unbegrenzter" Token-Freigabe (Approval) besonders aufpassen.</div></li>
+        <li><div class="st">Nur offizielle Links nutzen</div><div class="sd">URLs selbst eintippen oder per gespeichertem Lesezeichen. Nie über Werbung, DMs oder Google-Anzeigen.</div></li>
+        <li><div class="st">Diversifizieren</div><div class="sd">Nicht alles in ein Protokoll, eine Coin oder eine Kette. Verteile das Risiko.</div></li>
+        <li><div class="st">Klein testen, dann skalieren</div><div class="sd">Jede neue Strategie zuerst mit einem Mini-Betrag durchspielen.</div></li>
+        <li><div class="st">Gewinne sichern</div><div class="sd">Realisiere Erträge regelmäßig (z.&nbsp;B. in Stablecoins), statt alles ewig „arbeiten" zu lassen.</div></li>
+      </ol>
+
+      <h2 class="sec"><span class="num">2</span> Die Wallet-Hierarchie (Schutzmechanismus)</h2>
+      <div class="grid g3">
+        <div class="card"><h3>🧊 Cold Wallet</h3><p>Hardware-Wallet (Ledger/Trezor), offline. Hier liegt der <b>Großteil</b> deines Vermögens. Maximale Sicherheit.</p><span class="lvl l1">80–90 %</span></div>
+        <div class="card"><h3>🔥 Hot Wallet (Haupt)</h3><p>MetaMask o.&nbsp;Ä. für regelmäßiges DeFi. Mittlere Summe, mit der du aktiv arbeitest.</p><span class="lvl l2">10–15 %</span></div>
+        <div class="card"><h3>🧪 Burner Wallet</h3><p>Wegwerf-Wallet mit Kleinbetrag, um <b>neue/unbekannte</b> Apps gefahrlos zu testen.</p><span class="lvl l3">1–5 %</span></div>
+      </div>
+      <div class="box tip"><span class="bi">✅</span><div><div class="bt">Warum das so wirkungsvoll ist</div><p>Wird deine Hot- oder Burner-Wallet kompromittiert, ist nur ein kleiner Teil betroffen. Dein Hauptvermögen auf der Cold Wallet bleibt unangetastet. Diese Trennung ist der <b>wichtigste praktische Schutzmechanismus</b> in DeFi.</p></div></div>
+
+      <h2 class="sec"><span class="num">3</span> Token-Approvals regelmäßig widerrufen</h2>
+      <p>Wenn du eine DeFi-App nutzt, erteilst du oft eine <b>Approval</b> – die Erlaubnis, einen Token in deinem Namen zu bewegen. Alte, „unbegrenzte" Approvals sind ein Einfallstor. Prüfe und widerrufe sie regelmäßig über Tools wie <b>revoke.cash</b>.</p>
+      <div class="shot">
+        <div class="bar"><i class="r"></i><i class="y"></i><i class="g"></i><div class="url">revoke.cash · Approvals prüfen</div></div>
+        <div class="body">
+          <div class="mui-row"><div class="mui-coin"><span class="mui-ic ic-usdc">$</span><div><b>USDC</b><br><span style="font-size:12px;color:#f87171;">Unbegrenzt freigegeben an: Unbekannt</span></div></div><div class="mui-btn" style="margin:0;padding:8px 16px;background:#5a2d2d;">Widerrufen</div></div>
+          <div class="mui-row"><div class="mui-coin"><span class="mui-ic ic-eth">Ξ</span><div><b>WETH</b><br><span style="font-size:12px;color:var(--muted);">Freigegeben an: Aave (vertrauenswürdig)</span></div></div><span style="font-size:12px;color:var(--muted-2);">behalten</span></div>
+        </div>
+      </div>
+      <div class="cap">Alte „unbegrenzte" Freigaben an unbekannte Verträge sollten widerrufen werden.</div>
+
+      <h2 class="sec"><span class="num">4</span> Position-Sizing &amp; Diversifikation</h2>
+      <table class="t">
+        <tr><th>Risiko-Klasse</th><th>Beispiel</th><th>Empf. Anteil*</th></tr>
+        <tr><td class="tag-ok">Sehr sicher</td><td>Stablecoin-Lending (Aave), CEX-Earn</td><td>40 – 60 %</td></tr>
+        <tr><td class="tag-mid">Mittel</td><td>ETH-Staking, Stable-LPs</td><td>20 – 40 %</td></tr>
+        <tr><td class="tag-bad">Spekulativ</td><td>Yield Farming, neue Protokolle</td><td>0 – 10 %</td></tr>
+      </table>
+      <p class="muted" style="font-size:12.5px;">*Beispielhafte Orientierung, keine Empfehlung. Deine Aufteilung hängt von deiner persönlichen Risikotoleranz ab.</p>
+
+      <ul class="check" data-mod="sicherheit">
+        <li><span class="cb">✓</span><span class="ct">Ich kenne die 10 goldenen Schutzregeln.</span></li>
+        <li><span class="cb">✓</span><span class="ct">Ich nutze (oder plane) eine Hardware-Wallet für größere Beträge.</span></li>
+        <li><span class="cb">✓</span><span class="ct">Ich verstehe die Cold/Hot/Burner-Wallet-Hierarchie.</span></li>
+        <li><span class="cb">✓</span><span class="ct">Ich weiß, wie und warum ich Token-Approvals widerrufe.</span></li>
+        <li><span class="cb">✓</span><span class="ct">Ich teile mein Kapital nach Risiko-Klassen auf (Position Sizing).</span></li>
+      </ul>
+    </section>
+
+    <!-- =================== RENDITEN + CALC =================== -->
+    <section class="view" id="view-renditen">
+      <h1 class="page">📊 Realistische Renditen</h1>
+      <p class="page-sub">Vergiss „1000 % APY". Hier lernst du, welche Renditen in DeFi <b>wirklich</b> nachhaltig sind – und rechnest mit dem Rechner unten selbst durch, was dein Kapital realistisch erwirtschaften kann.</p>
+
+      <div class="box info"><span class="bi">📐</span><div><div class="bt">Faustregel für Realismus</div><p>Nachhaltige DeFi-Rendite liegt grob bei <b>4–12 % APY</b> (Stablecoins/Staking) bis vielleicht <b>15–25 %</b> bei aktiverem, risikoreicherem Yield Farming. Alles deutlich darüber ist entweder <b>kurzlebig</b>, durch <b>Token-Inflation</b> aufgepumpt oder schlicht <b>Betrug</b>.</p></div></div>
+
+      <h2 class="sec"><span class="num">1</span> Realistische Renditebänder</h2>
+      <table class="t">
+        <tr><th>Strategie</th><th>Realistische APY</th><th>Risiko</th><th>Aufwand</th></tr>
+        <tr><td>CEX-Earn (Stablecoin)</td><td class="tag-ok">3 – 7 %</td><td class="tag-ok">Niedrig–mittel</td><td>Sehr gering</td></tr>
+        <tr><td>Stablecoin-Lending (Aave)</td><td class="tag-ok">3 – 10 %</td><td class="tag-mid">Mittel</td><td>Gering</td></tr>
+        <tr><td>ETH-Staking (Lido)</td><td class="tag-ok">3 – 4 %</td><td class="tag-mid">Mittel</td><td>Gering</td></tr>
+        <tr><td>Stable-LP (Curve/Convex)</td><td class="tag-mid">5 – 15 %</td><td class="tag-mid">Mittel</td><td>Mittel</td></tr>
+        <tr><td>Yield Farming (etabliert)</td><td class="tag-mid">10 – 25 %</td><td class="tag-bad">Hoch</td><td>Hoch</td></tr>
+        <tr><td>„High-APY"-Farms (anonym)</td><td class="tag-bad">100 %+ (Falle)</td><td class="tag-bad">Extrem</td><td>Hoch</td></tr>
+      </table>
+
+      <h2 class="sec"><span class="num">2</span> Rendite-Rechner</h2>
+      <p class="muted" style="font-size:13.5px;">Spiele mit den Werten und sieh den Effekt des Zinseszinses. Rein illustrativ – keine Renditeversprechen.</p>
+      <div class="card">
+        <div class="calc calc-grid">
+          <div>
+            <label>Startkapital (€)</label>
+            <input type="number" id="cInit" value="5000" min="0" step="100">
+            <label>Monatliche Einzahlung (€)</label>
+            <input type="number" id="cMonthly" value="200" min="0" step="50">
+            <label>Erwartete Jahresrendite (APY): <b id="cApyLbl" style="color:var(--cyan);">8 %</b></label>
+            <input type="range" id="cApy" min="0" max="30" value="8" step="0.5">
+            <label>Laufzeit: <b id="cYearsLbl" style="color:var(--cyan);">5 Jahre</b></label>
+            <input type="range" id="cYears" min="1" max="30" value="5" step="1">
+            <label style="display:flex;align-items:center;gap:8px;margin-top:16px;">
+              <input type="checkbox" id="cCompound" checked style="width:auto;"> Zinseszins (Erträge reinvestieren)
+            </label>
+          </div>
+          <div class="result-box">
+            <div style="font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;">Endkapital nach <span id="rYears">5</span> Jahren</div>
+            <div class="result-big" id="rTotal">0 €</div>
+            <div class="result-row"><span>Eingezahlt gesamt</span><b id="rPaid">0 €</b></div>
+            <div class="result-row"><span>Erwirtschaftete Erträge</span><b id="rGain" style="color:var(--green);">0 €</b></div>
+            <div class="result-row"><span>Ø passives Einkommen / Monat</span><b id="rMonthly" style="color:var(--cyan);">0 €</b></div>
+            <div class="box warn" style="margin:14px 0 0;padding:12px 14px;"><span class="bi" style="font-size:16px;">⚠️</span><div><p style="font-size:12.5px;margin:0;">Renditen schwanken und sind nicht garantiert. Echte Ergebnisse können deutlich abweichen – auch nach unten.</p></div></div>
+          </div>
+        </div>
+      </div>
+
+      <h2 class="sec"><span class="num">3</span> Der wahre Hebel: Zeit &amp; Zinseszins</h2>
+      <p>Der größte Fehler von Anfängern ist die Jagd nach der höchsten APY. Der eigentliche Vermögensaufbau kommt aus <b>moderater, nachhaltiger Rendite × Zeit × Disziplin</b>. 8 % über 10 Jahre mit Reinvestition schlagen fast jede „Mond"-Farm, die nach 3 Monaten kollabiert.</p>
+      <div class="box tip"><span class="bi">✅</span><div><div class="bt">Die Profi-Denkweise</div><p>Frage nicht „Wo kriege ich die höchste APY?", sondern <b>„Welche Rendite kann ich über Jahre verlässlich und sicher halten?"</b> – Kapitalerhalt schlägt Renditejagd.</p></div></div>
+
+      <ul class="check" data-mod="renditen">
+        <li><span class="cb">✓</span><span class="ct">Ich kenne realistische Renditebänder je Strategie.</span></li>
+        <li><span class="cb">✓</span><span class="ct">Ich habe mit dem Rechner den Effekt von Zinseszins gesehen.</span></li>
+        <li><span class="cb">✓</span><span class="ct">Ich verstehe, dass nachhaltige Rendite × Zeit wichtiger ist als maximale APY.</span></li>
+      </ul>
+    </section>
+
+    <!-- =================== TOOLS =================== -->
+    <section class="view" id="view-tools">
+      <h1 class="page">🧰 DeFi-Tools</h1>
+      <p class="page-sub">Die richtigen Werkzeuge machen DeFi sicherer und übersichtlicher. Diese Tools nutzen erfahrene Anwender, um Renditen zu vergleichen, Risiken zu prüfen und ihr Portfolio im Blick zu behalten.</p>
+
+      <h2 class="sec"><span class="num">1</span> Unverzichtbare Tools nach Zweck</h2>
+      <div class="grid g2">
+        <div class="card"><h3>📊 Portfolio &amp; Übersicht</h3><ul><li><b>DeBank / Zapper</b> – alle Wallet-Positionen über mehrere Ketten auf einen Blick.</li><li><b>CoinGecko / CoinMarketCap</b> – Kurse, Marktdaten, Projekt-Infos.</li></ul></div>
+        <div class="card"><h3>📈 Renditen vergleichen</h3><ul><li><b>DeFiLlama</b> – TVL, Yields &amp; Protokoll-Daten transparent vergleichen.</li><li><b>Yield-Aggregatoren</b> (Beefy) – Auto-Compounding-Vaults.</li></ul></div>
+        <div class="card"><h3>🛡️ Sicherheit &amp; Prüfung</h3><ul><li><b>revoke.cash</b> – Token-Approvals prüfen &amp; widerrufen.</li><li><b>Etherscan / Blockchain-Explorer</b> – Verträge &amp; Transaktionen prüfen.</li><li><b>Token-Sniffer / GoPlus</b> – Tokens auf Scam-Merkmale checken.</li></ul></div>
+        <div class="card"><h3>⛽ Gas &amp; Transaktionen</h3><ul><li><b>Etherscan Gas Tracker</b> – günstige Zeiten zum Senden finden.</li><li><b>L2-Bridges</b> (offiziell) – günstig zwischen Ketten wechseln.</li></ul></div>
+      </div>
+
+      <h2 class="sec"><span class="num">2</span> So prüfst du ein Protokoll mit DeFiLlama</h2>
+      <div class="shot">
+        <div class="bar"><i class="r"></i><i class="y"></i><i class="g"></i><div class="url">defillama.com · Protokoll-Check</div></div>
+        <div class="body">
+          <div class="mui-row"><div class="mui-coin"><span class="mui-ic" style="background:#2172e5;">A</span><div><b>Aave</b><br><span style="font-size:12px;color:var(--muted);">Lending · seit 2020 · Multi-Chain</span></div></div><div style="text-align:right;"><b>TVL 11,2 Mrd $</b><br><span style="font-size:11px;color:#34d399;">etabliert</span></div></div>
+          <div class="mui-row"><div class="mui-coin"><span class="mui-ic" style="background:#7c3aed;">?</span><div><b>NeuFarm</b><br><span style="font-size:12px;color:#f87171;">3 Tage alt · 1 Chain · anonym</span></div></div><div style="text-align:right;"><b>TVL 90 k $</b><br><span style="font-size:11px;color:#f87171;">Vorsicht</span></div></div>
+        </div>
+      </div>
+      <div class="cap">Vergleiche Alter, TVL, Audits &amp; Team – bevor du investierst.</div>
+
+      <div class="box info"><span class="bi">🔎</span><div><div class="bt">Die 4-Punkte-Prüfung vor jedem Investment</div><p>1️⃣ <b>Wie alt</b> ist das Protokoll? · 2️⃣ Wie hoch ist das <b>TVL</b>? · 3️⃣ Gibt es <b>Audits</b> von bekannten Firmen? · 4️⃣ Ist das <b>Team öffentlich</b> und erreichbar? — Vier Mal „ja" senkt dein Risiko enorm.</p></div></div>
+
+      <h2 class="sec"><span class="num">3</span> Tool-Spickzettel</h2>
+      <div class="chips">
+        <span class="chip">DeBank · Portfolio</span>
+        <span class="chip">DeFiLlama · Yields/TVL</span>
+        <span class="chip">revoke.cash · Approvals</span>
+        <span class="chip">Etherscan · Explorer</span>
+        <span class="chip">CoinGecko · Kurse</span>
+        <span class="chip">Beefy · Auto-Compound</span>
+        <span class="chip">GoPlus · Token-Scan</span>
+        <span class="chip">Ledger Live · Hardware-Wallet</span>
+      </div>
+
+      <ul class="check" data-mod="tools">
+        <li><span class="cb">✓</span><span class="ct">Ich kenne Tools für Portfolio, Yields, Sicherheit und Gas.</span></li>
+        <li><span class="cb">✓</span><span class="ct">Ich kann ein Protokoll mit DeFiLlama einschätzen.</span></li>
+        <li><span class="cb">✓</span><span class="ct">Ich nutze die 4-Punkte-Prüfung vor jedem Investment.</span></li>
+      </ul>
+    </section>
+
+    <!-- =================== GLOSSAR =================== -->
+    <section class="view" id="view-glossar">
+      <h1 class="page">📖 Glossar — DeFi-Begriffe einfach erklärt</h1>
+      <p class="page-sub">Schlag hier nach, wenn dir ein Begriff begegnet. Alle wichtigen DeFi-Vokabeln, kurz und verständlich.</p>
+      <div class="card">
+        <dl style="margin:0;">
+          <div class="gl"><dt>APR / APY</dt><dd>Jährliche Rendite – APR ohne, APY mit Zinseszins.</dd></div>
+          <div class="gl"><dt>AMM (Automated Market Maker)</dt><dd>Mechanismus, der auf DEXs Preise über eine Formel statt über ein Orderbuch bestimmt.</dd></div>
+          <div class="gl"><dt>CEX / DEX</dt><dd>Zentrale Börse (mit Konto, hält dein Geld) vs. dezentrale Börse (über Wallet, du behältst die Kontrolle).</dd></div>
+          <div class="gl"><dt>Cold / Hot Wallet</dt><dd>Cold = offline (Hardware, sehr sicher). Hot = online (App, bequem, riskanter).</dd></div>
+          <div class="gl"><dt>Depeg</dt><dd>Ein Stablecoin verliert seine 1-zu-1-Bindung an den Dollar.</dd></div>
+          <div class="gl"><dt>DYOR</dt><dd>„Do Your Own Research" – recherchiere selbst, bevor du investierst.</dd></div>
+          <div class="gl"><dt>Gas</dt><dd>Transaktionsgebühr im Netzwerk, bezahlt in der nativen Coin.</dd></div>
+          <div class="gl"><dt>Health Factor</dt><dd>Kennzahl beim Leihen; unter 1 droht Liquidation.</dd></div>
+          <div class="gl"><dt>HODL</dt><dd>Coins langfristig halten statt traden.</dd></div>
+          <div class="gl"><dt>Impermanent Loss</dt><dd>Verlust als Liquidity Provider durch unterschiedliche Kursentwicklung der Pool-Coins.</dd></div>
+          <div class="gl"><dt>KYC</dt><dd>„Know Your Customer" – gesetzliche Identitätsprüfung bei Börsen.</dd></div>
+          <div class="gl"><dt>Layer 2 (L2)</dt><dd>Schnellere, günstigere Netzwerke auf Ethereum (z.&nbsp;B. Arbitrum, Base, Optimism).</dd></div>
+          <div class="gl"><dt>Lending / Borrowing</dt><dd>Verleihen (Zinsen verdienen) bzw. Leihen (gegen Sicherheit).</dd></div>
+          <div class="gl"><dt>Liquidation</dt><dd>Zwangsverkauf deiner Sicherheit, wenn ein Kredit unterdeckt ist.</dd></div>
+          <div class="gl"><dt>Liquidity Pool / LP</dt><dd>Gemeinsamer Coin-Topf einer DEX; LP-Token belegen deinen Anteil.</dd></div>
+          <div class="gl"><dt>Liquid Staking</dt><dd>Staken und einen handelbaren Token (z.&nbsp;B. stETH) zurückbekommen.</dd></div>
+          <div class="gl"><dt>Private Key / Seed Phrase</dt><dd>Geheime Schlüssel bzw. 12–24 Wörter, die Zugriff auf dein Vermögen geben. Niemals teilen!</dd></div>
+          <div class="gl"><dt>Proof of Stake (PoS)</dt><dd>Konsens-Verfahren, bei dem Validatoren mit hinterlegten Coins das Netzwerk sichern.</dd></div>
+          <div class="gl"><dt>Rug Pull</dt><dd>Betrug, bei dem Entwickler die Liquidität abziehen und verschwinden.</dd></div>
+          <div class="gl"><dt>Smart Contract</dt><dd>Selbstausführender Programmcode auf der Blockchain – das Rückgrat von DeFi.</dd></div>
+          <div class="gl"><dt>Stablecoin</dt><dd>Token mit stabilem Wert (~1 $), z.&nbsp;B. USDC, USDT, DAI.</dd></div>
+          <div class="gl"><dt>Staking</dt><dd>Coins sperren, um das Netzwerk zu sichern und Belohnungen zu erhalten.</dd></div>
+          <div class="gl"><dt>Swap</dt><dd>Direkter Tausch einer Coin in eine andere.</dd></div>
+          <div class="gl"><dt>TVL (Total Value Locked)</dt><dd>Gesamtwert, der in einem Protokoll hinterlegt ist – ein Vertrauensindikator.</dd></div>
+          <div class="gl"><dt>Yield Farming</dt><dd>Renditemaximierung durch Kombination mehrerer DeFi-Strategien.</dd></div>
+          <div class="gl"><dt>2FA</dt><dd>Zwei-Faktor-Authentifizierung – zweite Sicherheitsebene beim Login.</dd></div>
+        </dl>
+      </div>
+      <div class="footer-note">
+        <b>⚠️ Abschließender Hinweis:</b> Dieses gesamte Dashboard dient der <b>Bildung</b> und stellt <b>keine Finanzberatung</b> dar. Genannte Plattformen und Protokolle sind Beispiele, keine Empfehlungen. Kryptowährungen sind hochriskant – du bist allein verantwortlich für deine Entscheidungen. Informiere dich zusätzlich über deine <b>steuerlichen Pflichten</b> im Wohnsitzland.
+      </div>
+    </section>
+
+    </div><!-- /content -->
+  </div><!-- /main -->
+</div><!-- /app -->
+
+<script>
+  // ---------- Navigation ----------
+  const navLinks = document.querySelectorAll('#nav a');
+  const views = document.querySelectorAll('section.view');
+  const crumb = document.getElementById('crumb');
+  const sidebar = document.getElementById('sidebar');
+  const backdrop = document.getElementById('backdrop');
+
+  function show(view){
+    views.forEach(v=>v.classList.toggle('active', v.id==='view-'+view));
+    navLinks.forEach(a=>a.classList.toggle('active', a.dataset.view===view));
+    const active = [...navLinks].find(a=>a.dataset.view===view);
+    if(active) crumb.textContent = active.textContent.trim();
+    window.scrollTo({top:0,behavior:'smooth'});
+    sidebar.classList.remove('open'); backdrop.classList.remove('show');
+    try{ localStorage.setItem('upro_view', view); }catch(e){}
+  }
+  navLinks.forEach(a=>a.addEventListener('click',()=>show(a.dataset.view)));
+  document.querySelectorAll('[data-go]').forEach(t=>t.addEventListener('click',()=>show(t.dataset.go)));
+
+  // mobile menu
+  document.getElementById('menuBtn').addEventListener('click',()=>{
+    sidebar.classList.toggle('open'); backdrop.classList.toggle('show');
+  });
+  backdrop.addEventListener('click',()=>{sidebar.classList.remove('open');backdrop.classList.remove('show');});
+
+  // ---------- Checklisten + Fortschritt ----------
+  const CK = 'upro_checks_v1';
+  let checks = {};
+  try{ checks = JSON.parse(localStorage.getItem(CK)) || {}; }catch(e){ checks = {}; }
+
+  const allItems = document.querySelectorAll('.check li');
+  allItems.forEach((li,idx)=>{
+    const mod = li.closest('.check').dataset.mod;
+    const key = mod+'_'+[...li.parentNode.children].indexOf(li);
+    if(checks[key]) li.classList.add('done');
+    li.addEventListener('click',()=>{
+      li.classList.toggle('done');
+      checks[key] = li.classList.contains('done');
+      try{ localStorage.setItem(CK, JSON.stringify(checks)); }catch(e){}
+      updateProgress();
+    });
+  });
+  function updateProgress(){
+    const total = allItems.length;
+    let done = 0; allItems.forEach(li=>{ if(li.classList.contains('done')) done++; });
+    const pct = total? Math.round(done/total*100):0;
+    document.getElementById('progPct').textContent = pct+'%';
+  }
+  updateProgress();
+
+  // ---------- Rendite-Rechner ----------
+  const el = id=>document.getElementById(id);
+  function fmt(n){ return n.toLocaleString('de-DE',{maximumFractionDigits:0}) + ' €'; }
+  function calc(){
+    const init = parseFloat(el('cInit').value)||0;
+    const monthly = parseFloat(el('cMonthly').value)||0;
+    const apy = parseFloat(el('cApy').value)||0;
+    const years = parseInt(el('cYears').value)||1;
+    const compound = el('cCompound').checked;
+    el('cApyLbl').textContent = apy.toLocaleString('de-DE')+' %';
+    el('cYearsLbl').textContent = years+(years===1?' Jahr':' Jahre');
+    el('rYears').textContent = years;
+
+    const months = years*12;
+    const rMonthly = apy/100/12;
+    let balance = init;
+    if(compound){
+      for(let m=0;m<months;m++){ balance = balance*(1+rMonthly) + monthly; }
+    } else {
+      // einfache Zinsen aufs jeweils eingezahlte Kapital (linear)
+      let principal = init;
+      let interest = init*(apy/100)*years;
+      for(let m=0;m<months;m++){
+        principal += monthly;
+        const remainingYears = (months-m)/12;
+        interest += monthly*(apy/100)*remainingYears;
+      }
+      balance = principal + interest;
+    }
+    const paid = init + monthly*months;
+    const gain = balance - paid;
+    el('rTotal').textContent = fmt(balance);
+    el('rPaid').textContent = fmt(paid);
+    el('rGain').textContent = fmt(gain);
+    el('rMonthly').textContent = fmt(balance*(apy/100)/12);
+  }
+  ['cInit','cMonthly','cApy','cYears','cCompound'].forEach(id=>{
+    const node = el(id); if(node){ node.addEventListener('input',calc); node.addEventListener('change',calc); }
+  });
+  calc();
+
+  // restore last view
+  try{ const v = localStorage.getItem('upro_view'); if(v) show(v); }catch(e){}
+</script>
+</body>
+</html>
