@@ -220,6 +220,7 @@
   .shot .url{margin-left:10px;flex:1;background:#0a1020;border:1px solid var(--border);border-radius:8px;
     padding:5px 12px;font-size:12px;color:var(--muted);font-family:ui-monospace,monospace;}
   .shot .body{padding:20px;}
+  .shot-real{display:block;width:100%;height:auto;border-top:1px solid var(--border);}
   .cap{font-size:12.5px;color:var(--muted-2);text-align:center;margin:-4px 0 18px;font-style:italic;}
 
   /* mock UI bits */
@@ -1171,6 +1172,37 @@
     const node = el(id); if(node){ node.addEventListener('input',calc); node.addEventListener('change',calc); }
   });
   calc();
+
+  // ---------- Echte Screenshots laden (Fallback = Mockup) ----------
+  // Dateien werden vom Playwright-Skript in ./screenshots/ erzeugt.
+  // Lädt ein Bild erfolgreich, ersetzt es den darunterliegenden Mockup.
+  const SHOTS = {
+    'metamask.io'             : 'wallet-metamask.png',
+    'coinbase.com/signup'     : 'coinbase-signup.png',
+    'stake.lido.fi'           : 'lido.png',
+    'app.uniswap.org'         : 'uniswap.png',
+    'app.aave.com · Supply'   : 'aave-supply.png',
+    'app.aave.com/dashboard'  : 'aave-dashboard.png',
+    'revoke.cash'             : 'revoke.png',
+    'defillama.com'           : 'defillama.png'
+  };
+  document.querySelectorAll('.shot').forEach(shot=>{
+    const urlEl = shot.querySelector('.url');
+    if(!urlEl) return;
+    const url = urlEl.textContent || '';
+    let file = null;
+    for(const key in SHOTS){ if(url.indexOf(key) !== -1){ file = SHOTS[key]; break; } }
+    if(!file) return; // kein echtes Pendant -> Mockup behalten
+    const body = shot.querySelector('.body');
+    const img = document.createElement('img');
+    img.className = 'shot-real';
+    img.alt = url;
+    img.loading = 'lazy';
+    img.onload  = ()=>{ if(body) body.style.display = 'none'; };   // echtes Bild da -> Mockup aus
+    img.onerror = ()=>{ img.remove(); };                          // kein Bild -> Mockup bleibt
+    img.src = 'screenshots/' + file;
+    shot.querySelector('.bar').insertAdjacentElement('afterend', img);
+  });
 
   // restore last view
   try{ const v = localStorage.getItem('upro_view'); if(v) show(v); }catch(e){}

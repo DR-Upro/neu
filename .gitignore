@@ -1,0 +1,8 @@
+node_modules/
+package-lock.json
+test-results/
+playwright-report/
+.DS_Store
+
+# Screenshots NICHT ignorieren – sie sollen mit ins Dashboard.
+# (Ordner wird vom Skript erzeugt: capture-screenshots.mjs)

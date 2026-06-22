@@ -1,0 +1,14 @@
+{
+  "name": "upro-defi-mastery-screenshots",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Erzeugt echte Plattform-Screenshots für das Upro Capital DeFi Mastery Dashboard.",
+  "scripts": {
+    "setup": "npm install && npx playwright install chromium",
+    "shots": "node capture-screenshots.mjs"
+  },
+  "devDependencies": {
+    "playwright": "^1.48.0"
+  }
+}
