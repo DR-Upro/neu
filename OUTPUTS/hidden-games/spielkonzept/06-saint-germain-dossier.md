@@ -125,6 +125,126 @@ der Mann tot war. Und das ist die eigentlich spannende Frage: **wer, und warum?*
 
 ---
 
+## B2 — Die Anekdoten, die die Legende tragen
+
+Das Folgende ist der eigentliche Stoff. Fast alles davon geht auf **Madame du
+Hausset** zurück, die Kammerfrau der Madame de Pompadour — ihre Memoiren gelten
+in der Forschung als authentisch. Dazu kommen Casanova, Voltaire und der Prinz
+von Hessen. Es sind keine esoterischen Quellen, sondern Hofberichte.
+
+### Die Szene mit der Gräfin de Gergy (1760, Versailles)
+
+Die alte **Gräfin de Gergy** erklärt bei Hofe, sie habe diesen Mann bereits
+**fünfzig Jahre zuvor in Venedig** getroffen — 1710, damals unter dem Namen
+**Marquis Balletti**. Und er habe damals **exakt genauso ausgesehen** wie heute.
+
+Madame de Pompadour rechnet laut nach: Wenn die Gräfin ihn 1710 gekannt habe,
+müsse er inzwischen mindestens hundert Jahre alt sein.
+
+Saint Germain antwortet lachend: **"Das ist nicht unmöglich, Madame."**
+
+Das ist die Kernszene der ganzen Legende. Er dementiert nicht. Er bestätigt auch
+nicht. Er lässt es stehen.
+
+### Er isst nicht
+
+Er wird nie beim Essen oder Trinken in Gesellschaft gesehen. Bei Tafeln sitzt er
+dabei, redet brillant, erzählt Anekdoten — und rührt nichts an. Die Berichte
+betonen, dass er die Aufmerksamkeit seiner Gastgeber genau dadurch band, dass
+er unterhielt, während vor ihm alles unberührt stehen blieb.
+
+Er soll stattdessen eine eigene, geheime Nahrung zu sich genommen haben.
+
+### Das Elixier und die Bedienstete (1760)
+
+Ein Zeitungsbericht von 1760: Saint Germain überreicht einer Dame ein Fläschchen
+mit seinem Lebenselixier. Eine Bedienstete mittleren Alters hält es für ein
+harmloses Abführmittel und trinkt es aus.
+
+Als die Herrin sie am nächsten Tag ruft, steht ein junges Mädchen vor ihr, fast
+ein Kind.
+
+### Die dreihundert Jahre — und die Antwort des Dieners
+
+Gegenüber Casanova behauptet er, eine geheime Nahrung halte ihn seit über
+dreihundert Jahren am Leben. Er selbst bleibt dabei vergleichsweise nüchtern
+und spricht von dreihundert Jahren.
+
+Als jemand seinen **Diener** darauf anspricht, antwortet dieser:
+
+**"Das kann ich Ihnen nicht sagen. Ich bin erst seit hundert Jahren in seinem
+Dienst."**
+
+Der Diener spielt mit. Das ist der Punkt, an dem sichtbar wird: Da arbeitet
+jemand an einer Inszenierung, und er arbeitet nicht allein.
+
+### Er war dabei
+
+Er erzählt in der ersten Person von Ereignissen, die Jahrhunderte zurückliegen.
+Überliefert ist unter anderem, er habe behauptet, **bei der Kreuzigung zugegen**
+gewesen zu sein und **am Konzil von Trient teilgenommen** zu haben.
+
+### Voltaire, 15. April 1760
+
+In einem Brief an **Friedrich den Großen** schreibt Voltaire über ihn:
+
+**"C'est un homme qui ne meurt point, et qui sait tout."**
+Ein Mann, der nicht stirbt und der alles weiß.
+
+Voltaire meinte es spöttisch. Der Satz hat trotzdem zweieinhalb Jahrhunderte
+überlebt — und er stammt vom größten Skeptiker seiner Zeit.
+
+### Die Diamanten
+
+Er behauptet, **Fehler aus Edelsteinen entfernen** und kleine Diamanten zu
+größeren **verschmelzen** zu können. Du Hausset, Casanova und der Prinz von
+Hessen berichten übereinstimmend von Beispielen. Beweiskräftig ist keines davon.
+
+Du Hausset beschreibt ihn 1760: Er wirke etwa fünfzig, weder dünn noch dick,
+elegante Manieren, schlicht und geschmackvoll gekleidet. An Fingern, Dose und
+Uhr trage er Brillanten — die Diamanten allein an seinen **Knie- und
+Schuhschnallen** wurden auf **200.000 Francs** geschätzt.
+
+Ein Mann, der nie Geld annimmt und dessen Schuhschnallen ein Vermögen wert sind.
+
+### Die Labore
+
+Ludwig XV. richtet ihm ein **alchemistisches Labor in Versailles** ein. 1758
+bekommt er zusätzlich Räume in **Chambord**, wo er mit neuen Färbeverfahren für
+Textilien experimentiert.
+
+Ein König stellt einem Mann ohne Herkunft zwei Labore zur Verfügung.
+
+### Cagliostro
+
+**Cagliostro** — der berühmteste Okkultist und Hochstapler der Epoche —
+bezeichnete sich gern als **Schüler Saint Germains**. Die Legende hatte zu
+Lebzeiten bereits Nachahmer.
+
+---
+
+## B3 — Der Fälscher hat einen Namen
+
+Die berühmteste Geschichte über Saint Germain lautet: Er habe **Marie Antoinette
+vor der Revolution gewarnt** — über ihre Hofdame, die Gräfin d'Adhémar, die
+Begegnungen mit ihm bis 1820 beschreibt.
+
+**Diese Souvenirs sind eine Fälschung.** Sie stammen nicht von der Hofdame,
+sondern von **Lamothe-Langon** — Étienne-Léon de Lamothe-Langon, einem im 19.
+Jahrhundert produktiven Memoiren-Fälscher.
+
+Das ist der wichtigste Fund dieses Dossiers.
+
+Denn damit verschiebt sich die ganze Fragestellung. Nicht: War er unsterblich.
+Sondern: **Jemand hat ihn nach seinem Tod unsterblich geschrieben — mit Namen,
+mit Absicht, nachweisbar.** Und danach kamen Blavatsky, Leadbeater, die
+I-AM-Bewegung und ein gefälschtes Foto.
+
+Fünf Schichten, fünf Zeitpunkte, teilweise fünf benennbare Urheber. Das ist
+keine Sagengestalt mehr, das ist eine Ermittlungsakte.
+
+---
+
 ## C — Was später angebaut wurde
 
 ### Blavatsky und die Theosophie (ab 1875)
@@ -213,7 +333,13 @@ Eintrag geschrieben hat und ob er stimmt. Das ist die dünnste Spur, aber die
 dramatisch stärkste — weil sie die Blavatsky-Frage aufnimmt, ohne ins
 Übernatürliche kippen zu müssen.
 
-Alle drei lassen sich mit einem Meta-Gegner verbinden, der bis heute
+**Der Fälscher.** Die vierte und stärkste Tür: Lamothe-Langon hat die
+Revolutionswarnung erfunden. Warum ausgerechnet diese Geschichte, warum zu diesem
+Zeitpunkt, in wessen Auftrag? Ein Fall, in dem die Spieler nicht einen Mörder
+suchen, sondern den Urheber einer Legende — und dabei feststellen, dass die
+Fälschung einen wahren Kern verdeckt.
+
+Alle vier lassen sich mit einem Meta-Gegner verbinden, der bis heute
 weiterexistiert und dieselben Papiere sucht.
 
 ---
@@ -228,3 +354,7 @@ weiterexistiert und dieselben Papiere sucht.
 - [Gustav Berthold Volz: Der Graf von Saint-Germain (Project Gutenberg)](https://www.gutenberg.org/files/68838/68838-h/68838-h.htm)
 - [Theosophy Wiki — Count de Saint Germain](https://theosophy.wiki/en/Count_de_Saint_Germain)
 - [Blavatsky Theosophy — The Fake Photo](https://blavatskytheosophy.com/the-fake-photo/)
+- [Nicole du Hausset — Memoiren (Internet Archive)](https://archive.org/details/memoirsofthecour03883gut)
+- [Wikipedia — Nicole du Hausset](https://en.wikipedia.org/wiki/Nicole_du_Hausset)
+- [Freimaurer-Wiki — Saint-Germain](https://freimaurer-wiki.de/index.php/Saint-Germain)
+- [Wikipédia (fr) — Comte de Saint-Germain](https://fr.wikipedia.org/wiki/Comte_de_Saint-Germain)
