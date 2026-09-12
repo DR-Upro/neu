@@ -1,0 +1,878 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Zeichenspiel — Wortgenerator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper: #f6efdb;
+    --paper-line: rgba(23,57,99,0.11);
+    --ink: #173963;
+    --ink-soft: #4f6c8f;
+    --marker: #e15b2d;
+    --marker-dark: #c14620;
+    --highlight: #ffe066;
+    --white: #fffaf0;
+    --font: 'Baloo 2', 'Arial Rounded MT Bold', 'Segoe UI', system-ui, sans-serif;
+    --tap: 44px;
+  }
+
+  *{ box-sizing: border-box; }
+
+  html, body{
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--font);
+  }
+
+  body{
+    background-image:
+      linear-gradient(var(--paper-line) 1.5px, transparent 1.5px),
+      linear-gradient(90deg, var(--paper-line) 1.5px, transparent 1.5px);
+    background-size: 30px 30px;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  button{ font-family: var(--font); }
+
+  :focus-visible{
+    outline: 3px solid var(--marker);
+    outline-offset: 3px;
+  }
+
+  h1, h2, h3, p{ margin: 0; }
+
+  .screen{
+    display: none;
+    min-height: 100vh;
+    width: 100%;
+    padding: 16px;
+    padding-block: max(16px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-bottom));
+    flex-direction: column;
+    align-items: center;
+  }
+  .screen.active{ display: flex; }
+
+  /* ---------- Vollbild-Schalter (auf jedem Bildschirm) ---------- */
+  #fullscreenBtn{
+    position: fixed;
+    top: 10px;
+    right: 10px;
+    z-index: 50;
+    width: var(--tap);
+    height: var(--tap);
+    border-radius: 10px;
+    border: 2px solid var(--ink);
+    background: var(--white);
+    color: var(--ink);
+    font-size: 1.3rem;
+    line-height: 1;
+    cursor: pointer;
+  }
+  #fullscreenBtn[hidden]{ display: none; }
+  #fullscreenBtn[aria-pressed="true"]{ background: var(--highlight); }
+
+  /* ---------- Bildschirm 1: Einstellungen ---------- */
+  #screen-settings{ justify-content: flex-start; }
+
+  .app-title{
+    font-size: clamp(1.8rem, 6vw, 2.6rem);
+    font-weight: 800;
+    text-align: center;
+    margin: 40px 0 4px;
+    letter-spacing: 0.5px;
+  }
+  .app-sub{
+    font-size: clamp(0.95rem, 3vw, 1.1rem);
+    color: var(--ink-soft);
+    text-align: center;
+    margin-bottom: 24px;
+  }
+
+  .settings-wrap{
+    width: 100%;
+    max-width: 640px;
+    display: flex;
+    flex-direction: column;
+    gap: 26px;
+  }
+
+  .setting-block h2{
+    font-size: clamp(1.1rem, 3.4vw, 1.3rem);
+    font-weight: 700;
+    margin-bottom: 10px;
+  }
+
+  .btn-group{
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .opt-btn{
+    min-height: var(--tap);
+    padding: 10px 18px;
+    border-radius: 10px;
+    border: 3px solid var(--ink);
+    background: var(--white);
+    color: var(--ink);
+    font-size: 1.05rem;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 3px 3px 0 var(--ink);
+  }
+  .opt-btn[aria-pressed="true"]{
+    background: var(--highlight);
+    font-weight: 800;
+    box-shadow: 3px 3px 0 var(--marker-dark);
+  }
+  .opt-btn:active{ transform: translate(1px, 1px); box-shadow: 2px 2px 0 var(--ink); }
+
+  .slider-row{
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+  input[type="range"]{
+    flex: 1;
+    min-width: 200px;
+    height: var(--tap);
+    accent-color: var(--marker);
+    cursor: pointer;
+  }
+  .slider-value{
+    font-size: 1.3rem;
+    font-weight: 800;
+    min-width: 4.5ch;
+    background: var(--white);
+    border: 3px solid var(--ink);
+    border-radius: 10px;
+    padding: 6px 12px;
+    text-align: center;
+  }
+
+  .start-btn{
+    width: 100%;
+    max-width: 640px;
+    min-height: 68px;
+    margin: 30px 0 12px;
+    background: var(--ink);
+    color: var(--white);
+    border: none;
+    border-radius: 14px;
+    font-size: clamp(1.3rem, 4.5vw, 1.7rem);
+    font-weight: 800;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    box-shadow: 4px 4px 0 var(--marker-dark);
+  }
+  .start-btn:active{ transform: translate(2px, 2px); box-shadow: 2px 2px 0 var(--marker-dark); }
+
+  /* ---------- Bildschirm 2: Countdown ---------- */
+  #screen-countdown{
+    justify-content: center;
+    align-items: center;
+  }
+  .countdown-number{
+    font-size: clamp(6rem, 40vw, 18rem);
+    font-weight: 800;
+    color: var(--marker);
+    line-height: 1;
+  }
+  .countdown-label{
+    font-size: clamp(1.1rem, 4vw, 1.5rem);
+    color: var(--ink-soft);
+    font-weight: 600;
+    margin-top: 10px;
+  }
+
+  /* ---------- Bildschirm 3: Anzeige ---------- */
+  #screen-display{
+    justify-content: flex-start;
+    padding: 12px 16px;
+    position: relative;
+    height: 100vh;
+    height: 100dvh;
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  .display-topbar{
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .term-index{
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+  }
+  .term-index .num{
+    font-size: clamp(2.2rem, 7vw, 3.6rem);
+    font-weight: 800;
+    line-height: 1;
+  }
+  .term-index .of{
+    font-size: clamp(1rem, 3vw, 1.3rem);
+    color: var(--ink-soft);
+    font-weight: 600;
+  }
+
+  .quiet-controls{
+    display: flex;
+    gap: 8px;
+  }
+  .quiet-btn{
+    min-height: var(--tap);
+    min-width: var(--tap);
+    padding: 6px 14px;
+    border-radius: 10px;
+    border: 2px solid var(--ink-soft);
+    background: transparent;
+    color: var(--ink-soft);
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .quiet-btn:active{ background: var(--white); }
+
+  .pause-badge{
+    position: absolute;
+    top: 70px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--highlight);
+    border: 3px solid var(--ink);
+    border-radius: 10px;
+    padding: 6px 18px;
+    font-weight: 800;
+    font-size: 1.1rem;
+    display: none;
+  }
+  #screen-display.paused .pause-badge{ display: flex; align-items: center; gap: 8px; }
+
+  .pause-icon{
+    display: inline-flex;
+    gap: 3px;
+  }
+  .pause-icon::before,
+  .pause-icon::after{
+    content: "";
+    display: block;
+    width: 5px;
+    height: 16px;
+    background: var(--ink);
+    border-radius: 1px;
+  }
+
+  .term-stage{
+    flex: 1;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 10px;
+    min-height: 0;
+  }
+  .term-text{
+    font-weight: 800;
+    color: var(--ink);
+    line-height: 1.05;
+    max-width: 100%;
+    overflow-wrap: break-word;
+    hyphens: auto;
+    -webkit-hyphens: auto;
+  }
+
+  .timer-track{
+    width: 100%;
+    height: 26px;
+    background: var(--white);
+    border: 2px solid var(--ink-soft);
+    border-radius: 14px;
+    overflow: hidden;
+    margin-top: 10px;
+    flex-shrink: 0;
+  }
+  .timer-fill{
+    height: 100%;
+    width: 100%;
+    background: var(--marker);
+    border-radius: 14px;
+  }
+
+  /* ---------- Bildschirm 4: Ende ---------- */
+  #screen-end{
+    justify-content: flex-start;
+  }
+  .end-title{
+    font-size: clamp(1.6rem, 6vw, 2.4rem);
+    font-weight: 800;
+    text-align: center;
+    margin: 50px 0 28px;
+  }
+  .end-buttons{
+    width: 100%;
+    max-width: 560px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+  .end-btn{
+    min-height: 64px;
+    border-radius: 12px;
+    font-size: 1.2rem;
+    font-weight: 700;
+    cursor: pointer;
+  }
+  .end-btn.primary{
+    background: var(--ink);
+    color: var(--white);
+    border: none;
+    box-shadow: 4px 4px 0 var(--marker-dark);
+  }
+  .end-btn.secondary{
+    background: var(--white);
+    color: var(--ink);
+    border: 3px solid var(--ink);
+    box-shadow: 4px 4px 0 var(--ink);
+  }
+  .end-btn:active{ transform: translate(2px, 2px); box-shadow: 2px 2px 0; }
+
+  .end-list-wrap{
+    width: 100%;
+    max-width: 560px;
+    margin-top: 30px;
+  }
+  .end-list-wrap h3{
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--ink-soft);
+    margin-bottom: 8px;
+  }
+  .end-list{
+    list-style: none;
+    margin: 0;
+    padding: 14px 16px;
+    background: var(--white);
+    border: 2px solid var(--paper-line);
+    border-left: 4px solid var(--marker);
+    border-radius: 8px;
+    max-height: 40vh;
+    overflow-y: auto;
+    font-size: 1rem;
+  }
+  .end-list li{
+    padding: 5px 0;
+    border-bottom: 1px dashed var(--paper-line);
+  }
+  .end-list li:last-child{ border-bottom: none; }
+  .end-list li span.n{
+    color: var(--ink-soft);
+    font-weight: 700;
+    margin-right: 8px;
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    *{ transition: none !important; animation: none !important; }
+  }
+</style>
+</head>
+<body>
+
+<button id="fullscreenBtn" aria-pressed="false" aria-label="Vollbild umschalten" title="Vollbild">⛶</button>
+
+<!-- Bildschirm 1: Einstellungen -->
+<section id="screen-settings" class="screen active" aria-label="Einstellungen">
+  <h1 class="app-title">Zeichenspiel</h1>
+  <p class="app-sub">Stift bereit, Papier bereit — los geht's.</p>
+
+  <div class="settings-wrap">
+
+    <div class="setting-block">
+      <h2 id="lbl-count">Anzahl Begriffe</h2>
+      <div class="btn-group" role="group" aria-labelledby="lbl-count" id="group-count">
+        <button type="button" class="opt-btn" data-value="5">5</button>
+        <button type="button" class="opt-btn" data-value="10" aria-pressed="true">10</button>
+        <button type="button" class="opt-btn" data-value="15">15</button>
+        <button type="button" class="opt-btn" data-value="20">20</button>
+        <button type="button" class="opt-btn" data-value="30">30</button>
+      </div>
+    </div>
+
+    <div class="setting-block">
+      <h2 id="lbl-time">Zeit pro Begriff</h2>
+      <div class="slider-row">
+        <input type="range" id="timeSlider" min="0.5" max="15" step="0.5" value="1"
+               aria-labelledby="lbl-time" aria-valuetext="1,0 Sekunden">
+        <span class="slider-value" id="timeValue">1,0 s</span>
+      </div>
+    </div>
+
+    <div class="setting-block">
+      <h2 id="lbl-cat">Kategorie</h2>
+      <div class="btn-group" role="group" aria-labelledby="lbl-cat" id="group-category">
+        <button type="button" class="opt-btn" data-value="gemischt" aria-pressed="true">Gemischt</button>
+        <button type="button" class="opt-btn" data-value="gegenstaende">Gegenstände</button>
+        <button type="button" class="opt-btn" data-value="tiere">Tiere</button>
+        <button type="button" class="opt-btn" data-value="essen">Essen</button>
+        <button type="button" class="opt-btn" data-value="knifflig">Knifflig</button>
+      </div>
+    </div>
+
+    <div class="setting-block">
+      <h2 id="lbl-countdown">Countdown vorweg</h2>
+      <div class="btn-group" role="group" aria-labelledby="lbl-countdown" id="group-countdown">
+        <button type="button" class="opt-btn" data-value="an" aria-pressed="true">an</button>
+        <button type="button" class="opt-btn" data-value="aus">aus</button>
+      </div>
+    </div>
+
+    <div class="setting-block">
+      <h2 id="lbl-sound">Ton</h2>
+      <div class="btn-group" role="group" aria-labelledby="lbl-sound" id="group-sound">
+        <button type="button" class="opt-btn" data-value="an" aria-pressed="true">an</button>
+        <button type="button" class="opt-btn" data-value="aus">aus</button>
+      </div>
+    </div>
+
+  </div>
+
+  <button type="button" class="start-btn" id="startBtn">Runde starten</button>
+</section>
+
+<!-- Bildschirm 2: Countdown -->
+<section id="screen-countdown" class="screen" aria-label="Countdown">
+  <div class="countdown-number" id="countdownNumber">3</div>
+  <p class="countdown-label">Stifte bereit machen</p>
+</section>
+
+<!-- Bildschirm 3: Anzeige -->
+<section id="screen-display" class="screen" aria-label="Begriff-Anzeige">
+  <div class="display-topbar">
+    <div class="term-index">
+      <span class="num" id="displayIndex">1</span>
+      <span class="of" id="displayTotal">von 10</span>
+    </div>
+    <div class="quiet-controls">
+      <button type="button" class="quiet-btn" id="pauseBtn">Pause</button>
+      <button type="button" class="quiet-btn" id="cancelBtn">Abbrechen</button>
+    </div>
+  </div>
+
+  <div class="pause-badge"><span class="pause-icon" aria-hidden="true"></span> Pausiert</div>
+
+  <div class="term-stage">
+    <div class="term-text" id="termText" lang="de">Begriff</div>
+  </div>
+
+  <div class="timer-track" aria-hidden="true">
+    <div class="timer-fill" id="timerFill"></div>
+  </div>
+</section>
+
+<!-- Bildschirm 4: Ende -->
+<section id="screen-end" class="screen" aria-label="Runde beendet">
+  <h2 class="end-title" id="endTitle">Fertig — 10 Begriffe</h2>
+  <div class="end-buttons">
+    <button type="button" class="end-btn primary" id="againBtn">Nochmal, gleiche Einstellungen</button>
+    <button type="button" class="end-btn secondary" id="changeBtn">Einstellungen ändern</button>
+  </div>
+  <div class="end-list-wrap">
+    <h3>Gezeigte Begriffe</h3>
+    <ol class="end-list" id="endList"></ol>
+  </div>
+</section>
+
+<script>
+(function(){
+  "use strict";
+
+  /* ============ Wortvorrat ============ */
+  var WORDS = {
+    gegenstaende: ["Gießkanne","Nussknacker","Leuchtturm","Regenschirm","Fahrrad","Schaukelstuhl","Teekanne","Kerzenständer","Wecker","Schere","Bügeleisen","Staubsauger","Glühbirne","Schneebesen","Trichter","Laterne","Angel","Fernglas","Kompass","Anker","Ruder","Segelboot","Windmühle","Vogelkäfig","Krone","Zauberstab","Besen","Mülleimer","Briefkasten","Schlüssel","Vorhängeschloss","Taschenlampe","Kamera","Brille","Zylinderhut","Krawatte","Rucksack","Koffer","Zelt","Hängematte","Leiter","Hammer","Säge","Schraubenzieher","Nagel","Schraubenschlüssel","Gartenschlauch","Rasenmäher","Schubkarre","Heugabel","Vogelscheuche","Sonnenbrille","Regenmantel","Gummistiefel","Wäscheklammer","Bügelbrett","Mixer","Toaster","Kaffeekanne","Sanduhr","Waage","Thermometer","Spiegel","Kamm","Zahnbürste","Luftballon","Drachen","Kreisel","Schaukel","Rutsche","Trampolin","Karussell","Riesenrad","Kronleuchter","Weinglas","Flaschenöffner","Korkenzieher","Grill","Streichholzschachtel","Kerze","Kopfhörer","Fernbedienung","Joystick","Roboter","Rakete","Fallschirm","Skateboard","Surfbrett","Schneemann","Iglu","Kaktus","Sonnenschirm","Picknickkorb","Thermoskanne"],
+    tiere: ["Gürteltier","Seepferdchen","Kolibri","Elefant","Giraffe","Zebra","Löwe","Tiger","Bär","Fuchs","Wolf","Eule","Pinguin","Flamingo","Pfau","Papagei","Chamäleon","Krokodil","Schildkröte","Frosch","Schlange","Eidechse","Hai","Delfin","Wal","Oktopus","Qualle","Seestern","Krebs","Hummer","Schnecke","Marienkäfer","Schmetterling","Biene","Ameise","Spinne","Libelle","Grille","Heuschrecke","Fledermaus","Eichhörnchen","Igel","Maulwurf","Hase","Reh","Hirsch","Wildschwein","Waschbär","Stinktier","Otter","Biber","Nashorn","Nilpferd","Kamel","Lama","Alpaka","Känguru","Koala","Faultier","Ameisenbär","Stachelschwein","Erdmännchen","Pelikan","Storch","Kranich","Seelöwe","Walross","Robbe","Panda","Dachs","Luchs","Uhu","Specht","Schwan","Pfeilgiftfrosch"],
+    essen: ["Ananas","Brezel","Spiegelei","Currywurst","Pizza","Hamburger","Hotdog","Donut","Croissant","Baguette","Käse","Pfannkuchen","Waffel","Eistüte","Torte","Kuchen","Keks","Schokolade","Bonbon","Lutscher","Popcorn","Chips","Erdnuss","Banane","Apfel","Birne","Kirsche","Erdbeere","Weintrauben","Zitrone","Wassermelone","Kokosnuss","Karotte","Kartoffel","Zwiebel","Knoblauch","Paprika","Gurke","Tomate","Mais","Brokkoli","Kürbis","Pilz","Spaghetti","Sushi","Taco","Burrito","Sandwich","Muffin","Cupcake","Marmelade","Honig","Butter","Salami","Wurst","Kaugummi","Eiswürfel","Milchshake","Limonade","Kaffeetasse","Zuckerwatte","Marshmallow","Bratwurst","Grillspieß","Radieschen","Pommes","Ketchupflasche","Senf","Lebkuchen","Reis","Wassereis","Zimtschnecke","Kiwi","Ei","Mango"],
+    knifflig: ["Schluckauf","Montagmorgen","Fernweh","Liebeskummer","Zeitdruck","Lampenfieber","Heimweh","Prüfungsangst","Höhenangst","Platzangst","Flugangst","Seekrankheit","Kater","Winterschlaf","Sommerloch","Torschlusspanik","Verspätung","Stromausfall","Zeitreise","Schwerelosigkeit","Albtraum","Schlafwandeln","Zungenbrecher","Lachanfall","Gänsehaut","Herzklopfen","Sonnenbrand","Muskelkater","Jetlag","Fernbeziehung","Familienfest","Betriebsausflug","Vorstellungsgespräch","Frühjahrsputz","Kopfkino","Bauchgefühl","Herzschmerz","Wanderlust","Fehlalarm","Blackout","Filmriss","Geburtstagsüberraschung","Weltuntergang","Eifersucht","Verabredung","Verkehrsstau","Zeitumstellung","Winterspeck","Frühlingsgefühle","Nervenkitzel","Fernsehabend","Spieleabend","Familienstreit","Nachbarschaftsstreit","Ferienbeginn","Schulschluss","Sommerferien","Weihnachtsstimmung","Silvesterfeuerwerk","Neujahrsvorsatz","Frühstücksdurcheinander","Verkehrschaos","Schneechaos","Hitzewelle","Kältewelle","Prokrastination","Zielgerade","Lagerkoller","Kulturschock","Muffensausen","Geistesblitz","Bühnenangst","Zeitnot","Frühaufsteher","Nachteule","Morgenmuffel"]
+  };
+
+  function poolFor(category){
+    if(category === "gemischt"){
+      return WORDS.gegenstaende.concat(WORDS.tiere, WORDS.essen);
+    }
+    return WORDS[category];
+  }
+
+  function shuffle(arr){
+    var a = arr.slice();
+    for(var i = a.length - 1; i > 0; i--){
+      var j = Math.floor(Math.random() * (i + 1));
+      var tmp = a[i]; a[i] = a[j]; a[j] = tmp;
+    }
+    return a;
+  }
+
+  /* ============ Zustand ============ */
+  var state = {
+    count: 10,
+    seconds: 1.0,
+    category: "gemischt",
+    countdownOn: true,
+    soundOn: true
+  };
+
+  var round = {
+    terms: [],
+    index: 0,
+    running: false,
+    total: 0
+  };
+
+  var reducedMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  /* ============ Bildschirm-Umschaltung ============ */
+  var screens = {
+    settings: document.getElementById("screen-settings"),
+    countdown: document.getElementById("screen-countdown"),
+    display: document.getElementById("screen-display"),
+    end: document.getElementById("screen-end")
+  };
+  var currentScreen = "settings";
+
+  function showScreen(name){
+    for(var key in screens){
+      screens[key].classList.remove("active");
+    }
+    screens[name].classList.add("active");
+    currentScreen = name;
+  }
+
+  /* ============ Einstellungs-UI ============ */
+  function wireGroup(groupId, onSelect){
+    var group = document.getElementById(groupId);
+    var buttons = group.querySelectorAll(".opt-btn");
+    buttons.forEach(function(btn){
+      btn.addEventListener("click", function(){
+        buttons.forEach(function(b){ b.setAttribute("aria-pressed", "false"); });
+        btn.setAttribute("aria-pressed", "true");
+        onSelect(btn.getAttribute("data-value"));
+      });
+    });
+  }
+
+  wireGroup("group-count", function(v){ state.count = parseInt(v, 10); });
+  wireGroup("group-category", function(v){ state.category = v; });
+  wireGroup("group-countdown", function(v){ state.countdownOn = (v === "an"); });
+  wireGroup("group-sound", function(v){ state.soundOn = (v === "an"); });
+
+  var timeSlider = document.getElementById("timeSlider");
+  var timeValue = document.getElementById("timeValue");
+  function formatSeconds(v){
+    return v.toFixed(1).replace(".", ",") + " s";
+  }
+  function updateTimeDisplay(){
+    var v = parseFloat(timeSlider.value);
+    state.seconds = v;
+    var text = formatSeconds(v);
+    timeValue.textContent = text;
+    timeSlider.setAttribute("aria-valuetext", text.replace(" s", " Sekunden").replace(",", " Komma "));
+  }
+  timeSlider.addEventListener("input", updateTimeDisplay);
+  updateTimeDisplay();
+
+  /* ============ Ton (Web Audio API) ============ */
+  var audioCtx = null;
+  function ensureAudio(){
+    if(!state.soundOn) return;
+    if(!audioCtx){
+      var AC = window.AudioContext || window.webkitAudioContext;
+      if(!AC) return;
+      audioCtx = new AC();
+    }
+    if(audioCtx.state === "suspended"){
+      audioCtx.resume();
+    }
+  }
+  function playTone(freq, duration, type){
+    if(!state.soundOn || !audioCtx) return;
+    var osc = audioCtx.createOscillator();
+    var gain = audioCtx.createGain();
+    osc.type = type || "sine";
+    osc.frequency.value = freq;
+    var now = audioCtx.currentTime;
+    gain.gain.setValueAtTime(0.0001, now);
+    gain.gain.exponentialRampToValueAtTime(0.28, now + 0.015);
+    gain.gain.exponentialRampToValueAtTime(0.0001, now + duration);
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+    osc.start(now);
+    osc.stop(now + duration + 0.02);
+  }
+  function tickSound(){ playTone(740, 0.14, "sine"); }
+  function changeSound(){ playTone(520, 0.13, "triangle"); }
+
+  /* ============ Vollbild ============ */
+  var fsBtn = document.getElementById("fullscreenBtn");
+  var fsSupported = !!(document.documentElement.requestFullscreen);
+  if(!fsSupported){
+    fsBtn.setAttribute("hidden", "");
+  } else {
+    fsBtn.addEventListener("click", function(){
+      if(!document.fullscreenElement){
+        document.documentElement.requestFullscreen().catch(function(){});
+      } else {
+        document.exitFullscreen().catch(function(){});
+      }
+    });
+    document.addEventListener("fullscreenchange", function(){
+      fsBtn.setAttribute("aria-pressed", document.fullscreenElement ? "true" : "false");
+    });
+  }
+
+  /* ============ Text-Einpassung (fitText) ============ */
+  var termText = document.getElementById("termText");
+  var termStage = document.querySelector(".term-stage");
+
+  function binarySearchFit(min, max){
+    var lo = min, hi = max, best = min;
+    while(lo <= hi){
+      var mid = Math.floor((lo + hi) / 2);
+      termText.style.fontSize = mid + "px";
+      var fits = termText.scrollWidth <= termStage.clientWidth && termText.scrollHeight <= termStage.clientHeight;
+      if(fits){ best = mid; lo = mid + 1; } else { hi = mid - 1; }
+    }
+    return best;
+  }
+
+  var MIN_COMFORTABLE_PX = 40;
+
+  function fitText(){
+    var min = 20, max = 260;
+
+    // Zuerst einzeilig probieren — wirkt ruhiger als ein Umbruch mitten im Wort.
+    termText.style.whiteSpace = "nowrap";
+    termText.style.hyphens = "none";
+    termText.style.overflowWrap = "normal";
+    var singleLine = binarySearchFit(min, max);
+
+    if(singleLine >= MIN_COMFORTABLE_PX){
+      termText.style.fontSize = singleLine + "px";
+      return;
+    }
+
+    // Einzeilig wäre zu klein (z. B. "Geburtstagsüberraschung" auf schmalem Bildschirm) —
+    // mit Silbentrennung umbrechen, damit der Begriff trotzdem groß und vollständig bleibt.
+    termText.style.whiteSpace = "normal";
+    termText.style.hyphens = "auto";
+    termText.style.overflowWrap = "break-word";
+    var wrapped = binarySearchFit(min, max);
+    termText.style.fontSize = wrapped + "px";
+  }
+
+  window.addEventListener("resize", function(){
+    if(currentScreen === "display"){ fitText(); }
+  });
+
+  /* ============ Countdown ============ */
+  var countdownNumberEl = document.getElementById("countdownNumber");
+  var countdownTimeoutId = null;
+
+  function runCountdown(onDone){
+    showScreen("countdown");
+    var n = 3;
+    countdownNumberEl.textContent = n;
+    if(state.soundOn) tickSound();
+    countdownTimeoutId = setTimeout(step, 1000);
+
+    function step(){
+      n -= 1;
+      if(n <= 0){
+        countdownTimeoutId = null;
+        onDone();
+        return;
+      }
+      countdownNumberEl.textContent = n;
+      if(state.soundOn) tickSound();
+      countdownTimeoutId = setTimeout(step, 1000);
+    }
+  }
+
+  /* ============ Haupt-Timer (Anzeige) ============ */
+  var displayIndexEl = document.getElementById("displayIndex");
+  var displayTotalEl = document.getElementById("displayTotal");
+  var timerFill = document.getElementById("timerFill");
+  var displayScreenEl = document.getElementById("screen-display");
+  var pauseBtn = document.getElementById("pauseBtn");
+  var cancelBtn = document.getElementById("cancelBtn");
+
+  var totalMs = 0;
+  var elapsedAtPause = 0;
+  var termStartTs = 0;
+  var isPaused = false;
+  var rafId = null;
+
+  function startRound(){
+    ensureAudio();
+    var pool = poolFor(state.category);
+    var n = Math.min(state.count, pool.length);
+    round.terms = shuffle(pool).slice(0, n);
+    round.index = 0;
+
+    if(state.countdownOn){
+      runCountdown(beginDisplay);
+    } else {
+      beginDisplay();
+    }
+  }
+
+  function beginDisplay(){
+    showScreen("display");
+    isPaused = false;
+    displayScreenEl.classList.remove("paused");
+    pauseBtn.textContent = "Pause";
+    showTerm(0);
+  }
+
+  function showTerm(i){
+    round.index = i;
+    var term = round.terms[i];
+    displayIndexEl.textContent = (i + 1);
+    displayTotalEl.textContent = "von " + round.terms.length;
+    termText.textContent = term;
+    fitText();
+
+    if(state.soundOn) changeSound();
+
+    totalMs = state.seconds * 1000;
+    elapsedAtPause = 0;
+    termStartTs = performance.now();
+    isPaused = false;
+    displayScreenEl.classList.remove("paused");
+    pauseBtn.textContent = "Pause";
+    timerFill.style.width = "100%";
+
+    if(rafId) cancelAnimationFrame(rafId);
+    rafId = requestAnimationFrame(tick);
+  }
+
+  function tick(now){
+    if(isPaused) return;
+    var elapsed = elapsedAtPause + (now - termStartTs);
+    var remaining = Math.max(0, totalMs - elapsed);
+    var pct = totalMs > 0 ? (remaining / totalMs) * 100 : 0;
+    timerFill.style.width = pct + "%";
+
+    if(elapsed >= totalMs){
+      advance();
+      return;
+    }
+    rafId = requestAnimationFrame(tick);
+  }
+
+  function advance(){
+    var next = round.index + 1;
+    if(next >= round.terms.length){
+      finishRound();
+    } else {
+      showTerm(next);
+    }
+  }
+
+  function togglePause(){
+    if(currentScreen !== "display") return;
+    if(isPaused){
+      // fortsetzen
+      isPaused = false;
+      displayScreenEl.classList.remove("paused");
+      pauseBtn.textContent = "Pause";
+      termStartTs = performance.now();
+      rafId = requestAnimationFrame(tick);
+    } else {
+      // pausieren
+      isPaused = true;
+      displayScreenEl.classList.add("paused");
+      pauseBtn.textContent = "Weiter";
+      elapsedAtPause += performance.now() - termStartTs;
+      if(rafId){ cancelAnimationFrame(rafId); rafId = null; }
+    }
+  }
+
+  pauseBtn.addEventListener("click", function(){ ensureAudio(); togglePause(); });
+  cancelBtn.addEventListener("click", function(){ ensureAudio(); abortToSettings(); });
+
+  function stopAllTimers(){
+    if(rafId){ cancelAnimationFrame(rafId); rafId = null; }
+    if(countdownTimeoutId){ clearTimeout(countdownTimeoutId); countdownTimeoutId = null; }
+    isPaused = false;
+  }
+
+  function abortToSettings(){
+    stopAllTimers();
+    showScreen("settings");
+  }
+
+  /* ============ Ende ============ */
+  var endTitleEl = document.getElementById("endTitle");
+  var endListEl = document.getElementById("endList");
+  var againBtn = document.getElementById("againBtn");
+  var changeBtn = document.getElementById("changeBtn");
+
+  function finishRound(){
+    stopAllTimers();
+    endTitleEl.textContent = "Fertig — " + round.terms.length + " Begriffe";
+    endListEl.innerHTML = "";
+    round.terms.forEach(function(term, i){
+      var li = document.createElement("li");
+      var span = document.createElement("span");
+      span.className = "n";
+      span.textContent = (i + 1) + ".";
+      li.appendChild(span);
+      li.appendChild(document.createTextNode(term));
+      endListEl.appendChild(li);
+    });
+    showScreen("end");
+  }
+
+  againBtn.addEventListener("click", function(){ ensureAudio(); startRound(); });
+  changeBtn.addEventListener("click", function(){ showScreen("settings"); });
+
+  /* ============ Start-Knopf ============ */
+  document.getElementById("startBtn").addEventListener("click", function(){
+    ensureAudio();
+    startRound();
+  });
+
+  /* ============ Tastatur ============ */
+  document.addEventListener("keydown", function(e){
+    if(e.key === " " || e.code === "Space"){
+      e.preventDefault();
+      ensureAudio();
+      if(currentScreen === "settings"){
+        startRound();
+      } else if(currentScreen === "display"){
+        togglePause();
+      }
+    } else if(e.key === "Escape"){
+      if(currentScreen !== "settings"){
+        abortToSettings();
+      }
+    }
+  });
+
+})();
+</script>
+</body>
+</html>
